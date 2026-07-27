@@ -1,5 +1,5 @@
 {
-  "branch": "feature/T06-soumission-a-validation",
+  "branch": "chore/convention-nommage-tests",
   "outcome": "success",
-  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"feature/T06-soumission-a-validation\"\ncould not compute title or body defaults: failed to run git: fatal: ambiguous argument 'origin/develop...feature/T06-soumission-a-validation': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions, like this:\n'git <command> [<revision>...] -- [<file>...]'\n\n"
+  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"chore/convention-nommage-tests\"\nhttps://github.com/Baptiste-Fournel/Datacom/pull/22\n"
 }
