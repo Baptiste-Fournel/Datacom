@@ -12,6 +12,15 @@ public enum WorkflowStep {
         this.number = number;
     }
 
+    public static WorkflowStep fromNumber(int number) {
+        for (WorkflowStep step : values()) {
+            if (step.number == number) {
+                return step;
+            }
+        }
+        throw new IllegalArgumentException("No workflow step matches number " + number);
+    }
+
     public WorkflowStep next() {
         if (isFinal()) {
             throw new IllegalStateException("The final step does not allow any progression");

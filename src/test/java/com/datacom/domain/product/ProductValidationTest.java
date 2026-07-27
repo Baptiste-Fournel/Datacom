@@ -20,18 +20,23 @@ class ProductValidationTest {
 
     @Test
     void shouldMoveToValidated_whenValidatorValidatesPendingProduct() {
+        // Arrange
         Product product = pendingProduct();
 
+        // Act
         product.validate(VALIDATOR, VALIDATION_DATE);
 
+        // Assert
         assertThat(product.status()).isEqualTo(ProductStatus.VALIDATED);
         assertThat(product.updatedAt()).isEqualTo(VALIDATION_DATE);
     }
 
     @Test
     void shouldRejectValidation_whenUserIsNotValidator() {
+        // Arrange
         Product product = pendingProduct();
 
+        // Assert
         assertThatExceptionOfType(ValidationNotAllowedException.class)
                 .isThrownBy(() -> product.validate(OPERATOR, VALIDATION_DATE))
                 .withMessageContaining("VALIDATOR");
@@ -41,8 +46,10 @@ class ProductValidationTest {
 
     @Test
     void shouldRejectValidation_whenProductIsStillDraft() {
+        // Arrange
         Product product = Product.createDraft(1L, CREATION_DATE);
 
+        // Assert
         assertThatIllegalStateException()
                 .isThrownBy(() -> product.validate(VALIDATOR, VALIDATION_DATE))
                 .withMessageContaining("pending validation");
@@ -51,10 +58,12 @@ class ProductValidationTest {
 
     @Test
     void shouldRejectValidation_whenAlreadyValidated() {
+        // Arrange
         Product product = pendingProduct();
         product.validate(VALIDATOR, VALIDATION_DATE);
         Instant retry = Instant.parse("2026-07-28T10:00:00Z");
 
+        // Assert
         assertThatIllegalStateException()
                 .isThrownBy(() -> product.validate(VALIDATOR, retry))
                 .withMessageContaining("pending validation");
@@ -64,8 +73,10 @@ class ProductValidationTest {
 
     @Test
     void shouldRejectValidation_whenValidatorIsMissing() {
+        // Arrange
         Product product = pendingProduct();
 
+        // Assert
         assertThatNullPointerException()
                 .isThrownBy(() -> product.validate(null, VALIDATION_DATE))
                 .withMessageContaining("requires a validator");
@@ -73,18 +84,22 @@ class ProductValidationTest {
 
     @Test
     void shouldRejectValidationBeforeRevealingState_whenUserIsNotValidator() {
+        // Arrange
         Product draft = Product.createDraft(1L, CREATION_DATE);
 
+        // Assert
         assertThatExceptionOfType(ValidationNotAllowedException.class)
                 .isThrownBy(() -> draft.validate(OPERATOR, VALIDATION_DATE));
     }
 
     @Test
     void shouldStayFrozen_whenValidated() {
+        // Arrange
         Product product = pendingProduct();
         product.validate(VALIDATOR, VALIDATION_DATE);
         Instant later = Instant.parse("2026-07-28T11:00:00Z");
 
+        // Assert
         assertThat(product.isEditable()).isFalse();
         assertThatIllegalStateException()
                 .isThrownBy(() -> product.updateIdentification("n", "r", "d", later))
