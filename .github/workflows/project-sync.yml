@@ -23,7 +23,7 @@ jobs:
       - name: Synchroniser le board (items et statuts)
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.ACTIONS_PAT || github.token }}
+          GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.PROJECT_PAT || secrets.ACTIONS_PAT || github.token }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
