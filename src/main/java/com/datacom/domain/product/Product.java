@@ -8,7 +8,7 @@ public class Product {
     private final long createdBy;
     private final Instant createdAt;
     private Instant updatedAt;
-    private final ProductStatus status;
+    private ProductStatus status;
     private WorkflowStep currentStep;
     private String name;
     private String reference;
@@ -38,6 +38,7 @@ public class Product {
     }
 
     public void updateIdentification(String name, String reference, String description, Instant at) {
+        requireEditable();
         this.name = name;
         this.reference = reference;
         this.description = description;
@@ -46,6 +47,7 @@ public class Product {
 
     public void updateClassification(String category, String subcategory, String manufacturer, String country,
             Instant at) {
+        requireEditable();
         this.category = category;
         this.subcategory = subcategory;
         this.manufacturer = manufacturer;
@@ -54,6 +56,7 @@ public class Product {
     }
 
     public void updateCertification(String lot, String certification, String validationComment, Instant at) {
+        requireEditable();
         this.lot = lot;
         this.certification = certification;
         this.validationComment = validationComment;
@@ -61,12 +64,30 @@ public class Product {
     }
 
     public void advanceToNextStep(Instant at) {
+        requireEditable();
         this.currentStep = currentStep.next();
+        touch(at);
+    }
+
+    public void submitForValidation(Instant at) {
+        if (status != ProductStatus.DRAFT) {
+            throw new IllegalStateException("Only a draft can be submitted for validation");
+        }
+        if (!currentStep.isFinal()) {
+            throw new IncompleteProductException(currentStep);
+        }
+        this.status = ProductStatus.PENDING_VALIDATION;
         touch(at);
     }
 
     public boolean isEditable() {
         return status == ProductStatus.DRAFT;
+    }
+
+    private void requireEditable() {
+        if (!isEditable()) {
+            throw new IllegalStateException("The product is no longer editable");
+        }
     }
 
     private void touch(Instant at) {
