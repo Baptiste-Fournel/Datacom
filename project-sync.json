@@ -1,5 +1,5 @@
 {
   "result": "echec",
   "project": "",
-  "detail": "GraphQL: github-actions[bot] does not have permission to create projects on ownerId U_kgDOBdWCvQ. (createProjectV2)"
+  "detail": "GraphQL: Resource not accessible by personal access token (createProjectV2)"
 }
