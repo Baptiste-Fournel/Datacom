@@ -1,5 +1,7 @@
 package com.datacom.domain.product;
 
+import com.datacom.domain.user.Role;
+import com.datacom.domain.user.User;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -77,6 +79,18 @@ public class Product {
             throw new IncompleteProductException(currentStep);
         }
         this.status = ProductStatus.PENDING_VALIDATION;
+        touch(at);
+    }
+
+    public void validate(User validator, Instant at) {
+        Objects.requireNonNull(validator, "A validation requires a validator");
+        if (!validator.hasRole(Role.VALIDATOR)) {
+            throw new ValidationNotAllowedException();
+        }
+        if (status != ProductStatus.PENDING_VALIDATION) {
+            throw new IllegalStateException("Only a product pending validation can be validated");
+        }
+        this.status = ProductStatus.VALIDATED;
         touch(at);
     }
 
