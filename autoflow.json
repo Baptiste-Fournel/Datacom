@@ -1,5 +1,5 @@
 {
-  "branch": "chore/commentaires-de-structure-tests",
+  "branch": "feature/T10-requetes-intentionnelles",
   "outcome": "success",
-  "log": "acteur: Baptiste-Fournel\ntitle:\ttest: commentaires de structure obligatoires (AAA/GWT) et regle executable\nstate:\tOPEN\nauthor:\tBaptiste-Fournel (Baptiste59)\nlabels:\t\nassignees:\t\nreviewers:\t\nprojects:\t\nmilestone:\t\nnumber:\t26\nurl:\thttps://github.com/Baptiste-Fournel/Datacom/pull/26\nadditions:\t116\ndeletions:\t1\nauto-merge:\tdisabled\n--\n\nPR deja ouverte\n"
+  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"feature/T10-requetes-intentionnelles\"\nhttps://github.com/Baptiste-Fournel/Datacom/pull/27\n"
 }
