@@ -1,3 +1,3 @@
 {
-  "log": "tag: ops-reordre-t07-t08\nstart 8\ncomment 7 Pris apres T08 : validate(user) depend du modele User/Role de T08 (inversion d ordre assumee).\ncomment 8 Demarre en premier de la paire T07/T08 (dependance de T07 vers le modele utilisateur).\n! Issue Baptiste-Fournel/Datacom#8 (T08 — Domaine : User et Role) is already open\nhttps://github.com/Baptiste-Fournel/Datacom/issues/8\nhttps://github.com/Baptiste-Fournel/Datacom/issues/7#issuecomment-5097166669\nhttps://github.com/Baptiste-Fournel/Datacom/issues/8#issuecomment-5097166815\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-reordre-t07-t08\n"
+  "log": "tag: ops-fin-t08\ndone 8 Livre dans develop (squash, CI verte, PR #23).\nhttps://github.com/Baptiste-Fournel/Datacom/issues/8\n✓ Closed issue Baptiste-Fournel/Datacom#8 (T08 — Domaine : User et Role)\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-fin-t08\n"
 }
