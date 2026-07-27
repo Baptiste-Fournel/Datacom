@@ -7,9 +7,19 @@ public class Product {
 
     private final long createdBy;
     private final Instant createdAt;
-    private final Instant updatedAt;
+    private Instant updatedAt;
     private final ProductStatus status;
-    private final WorkflowStep currentStep;
+    private WorkflowStep currentStep;
+    private String name;
+    private String reference;
+    private String description;
+    private String category;
+    private String subcategory;
+    private String manufacturer;
+    private String country;
+    private String lot;
+    private String certification;
+    private String validationComment;
 
     private Product(long createdBy, Instant createdAt) {
         this.createdBy = createdBy;
@@ -25,6 +35,42 @@ public class Product {
         }
         Objects.requireNonNull(creationDate, "A product requires a creation date");
         return new Product(creatorId, creationDate);
+    }
+
+    public void updateIdentification(String name, String reference, String description, Instant at) {
+        this.name = name;
+        this.reference = reference;
+        this.description = description;
+        touch(at);
+    }
+
+    public void updateClassification(String category, String subcategory, String manufacturer, String country,
+            Instant at) {
+        this.category = category;
+        this.subcategory = subcategory;
+        this.manufacturer = manufacturer;
+        this.country = country;
+        touch(at);
+    }
+
+    public void updateCertification(String lot, String certification, String validationComment, Instant at) {
+        this.lot = lot;
+        this.certification = certification;
+        this.validationComment = validationComment;
+        touch(at);
+    }
+
+    public void advanceToNextStep(Instant at) {
+        this.currentStep = currentStep.next();
+        touch(at);
+    }
+
+    public boolean isEditable() {
+        return status == ProductStatus.DRAFT;
+    }
+
+    private void touch(Instant at) {
+        this.updatedAt = at;
     }
 
     public ProductStatus status() {
@@ -45,5 +91,45 @@ public class Product {
 
     public Instant updatedAt() {
         return updatedAt;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String reference() {
+        return reference;
+    }
+
+    public String description() {
+        return description;
+    }
+
+    public String category() {
+        return category;
+    }
+
+    public String subcategory() {
+        return subcategory;
+    }
+
+    public String manufacturer() {
+        return manufacturer;
+    }
+
+    public String country() {
+        return country;
+    }
+
+    public String lot() {
+        return lot;
+    }
+
+    public String certification() {
+        return certification;
+    }
+
+    public String validationComment() {
+        return validationComment;
     }
 }
