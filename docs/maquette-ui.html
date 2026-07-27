@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataCom — Maquette UI/UX (espaces par rôle)</title>
+<style>
+  :root{
+    --bg:#f5f6f8;
+    --surface:#ffffff;
+    --border:#e4e7ec;
+    --border-strong:#d0d5dd;
+    --text:#1f2937;
+    --text-muted:#667085;
+    --text-soft:#98a2b3;
+    --accent:#2f5aa8;
+    --accent-hover:#274c8f;
+    --accent-soft:#eaf0fa;
+    --green-bg:#e7f6ec;--green-fg:#1c7a3e;
+    --amber-bg:#fef3d7;--amber-fg:#98650a;
+    --indigo-bg:#ecebfa;--indigo-fg:#4c40a8;
+    --grey-bg:#eef1f5;--grey-fg:#475467;
+    --danger-bg:#fdeceb;--danger-fg:#b42318;--danger-border:#f4c9c6;
+    --radius:8px;--radius-sm:6px;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+    --shadow-md:0 4px 12px rgba(16,24,40,.08);
+    --font:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.5;font-size:15px;-webkit-font-smoothing:antialiased}
+
+  /* ---- Barre de démo (hors application) ---- */
+  .demobar{position:sticky;top:0;z-index:50;background:#101828;color:#cdd5df;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 16px;font-size:13px}
+  .demobar strong{color:#fff;font-weight:600;letter-spacing:.2px}
+  .demobar .spacer{flex:1}
+  .demobar nav{display:flex;flex-wrap:wrap;gap:4px}
+  .demobar button{background:transparent;border:1px solid #344054;color:#cdd5df;padding:4px 10px;border-radius:999px;cursor:pointer;font:inherit;font-size:12.5px}
+  .demobar button:hover{background:#1d2939;color:#fff}
+  .demobar button.active{background:#2f5aa8;border-color:#2f5aa8;color:#fff}
+  .demobar .role{display:flex;align-items:center;gap:6px}
+  .demobar .role>span{color:#98a2b3}
+  .demobar .rolebtns button.active{background:#3a5c94;border-color:#3a5c94}
+
+  /* ---- Chrome applicatif ---- */
+  .appbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;gap:28px;box-shadow:var(--shadow)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--accent);font-size:17px;letter-spacing:.3px}
+  .brand .logo{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#2f5aa8,#4b7bd4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800}
+  .appnav{display:flex;gap:4px}
+  .appnav a{padding:8px 12px;border-radius:var(--radius-sm);color:var(--text-muted);text-decoration:none;font-weight:500;font-size:14px;cursor:pointer}
+  .appnav a:hover{background:var(--bg);color:var(--text)}
+  .appnav a.current{color:var(--accent);background:var(--accent-soft)}
+  .appbar .spacer{flex:1}
+  .userchip{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text-muted)}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .userchip .name{color:var(--text);font-weight:600}
+  .userchip .role-tag{font-size:11.5px;color:var(--text-soft)}
+  .linkbtn{background:none;border:none;color:var(--text-muted);cursor:pointer;font:inherit;font-size:13.5px;padding:6px 8px;border-radius:6px}
+  .linkbtn:hover{color:var(--danger-fg);background:var(--danger-bg)}
+
+  main{max-width:920px;margin:0 auto;padding:28px 24px 64px}
+  .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px}
+  .page-head h1{font-size:22px;margin:0 0 4px}
+  .page-head p{margin:0;color:var(--text-muted);font-size:14px}
+
+  /* ---- Boutons ---- */
+  .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;border-radius:var(--radius-sm);padding:9px 16px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;line-height:1;transition:background .12s,border-color .12s}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-hover)}
+  .btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border-strong)}
+  .btn-secondary:hover{background:var(--bg)}
+  .btn-ghost{background:transparent;color:var(--text-muted)}
+  .btn-ghost:hover{background:var(--bg);color:var(--text)}
+  .btn-success{background:var(--green-fg);color:#fff}
+  .btn-success:hover{filter:brightness(.94)}
+  .btn[disabled]{opacity:.55;cursor:not-allowed}
+  .btn .ic{font-size:15px;line-height:1}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card-pad{padding:22px 24px}
+
+  /* ---- Badges statut ---- */
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.85}
+  .badge-draft{background:var(--amber-bg);color:var(--amber-fg)}
+  .badge-pending{background:var(--indigo-bg);color:var(--indigo-fg)}
+  .badge-validated{background:var(--green-bg);color:var(--green-fg)}
+
+  /* ---- Tableau ---- */
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);background:var(--surface)}
+  table.data{width:100%;border-collapse:collapse;font-size:14px}
+  table.data th{text-align:left;padding:11px 16px;background:#fafbfc;color:var(--text-muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border)}
+  table.data td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+  table.data tbody tr:last-child td{border-bottom:none}
+  table.data tbody tr:hover{background:#f9fbfe}
+  table.data td .pname{font-weight:600;color:var(--text)}
+  table.data td .pref{color:var(--text-soft);font-size:12.5px}
+  .miniprogress{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px;font-variant-numeric:tabular-nums}
+  .miniprogress .bar{width:70px;height:5px;border-radius:3px;background:var(--border);overflow:hidden}
+  .miniprogress .bar i{display:block;height:100%;background:var(--accent)}
+  .rowlink{color:var(--accent);font-weight:600;text-decoration:none;cursor:pointer}
+  .rowlink:hover{text-decoration:underline}
+  .toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+  .toolbar .count{color:var(--text-muted);font-size:13.5px}
+
+  .empty{text-align:center;padding:48px 24px;color:var(--text-muted)}
+  .empty .ic{font-size:34px;opacity:.4;margin-bottom:8px}
+  .empty h3{margin:0 0 4px;color:var(--text);font-size:16px}
+
+  /* ---- Formulaire ---- */
+  .field{margin-bottom:18px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-weight:600;font-size:13.5px;margin-bottom:6px;color:var(--text)}
+  .field .req{color:var(--danger-fg)}
+  .field .hint{color:var(--text-soft);font-size:12.5px;margin-top:5px}
+  .field input[type=text],.field textarea,.field select{width:100%;padding:9px 12px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);font:inherit;font-size:14px;color:var(--text);background:var(--surface)}
+  .field textarea{resize:vertical;min-height:90px}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+
+  /* ---- Stepper ---- */
+  .stepper{display:flex;gap:6px;margin-bottom:26px}
+  .stepper .step{flex:1;display:flex;flex-direction:column;gap:8px;cursor:pointer}
+  .stepper .step .track{height:5px;border-radius:3px;background:var(--border)}
+  .stepper .step.done .track,.stepper .step.current .track{background:var(--accent)}
+  .stepper .step .lbl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-soft)}
+  .stepper .step.current .lbl{color:var(--text);font-weight:600}
+  .stepper .step.done .lbl{color:var(--text-muted)}
+  .stepper .num{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-soft);background:var(--surface);flex:none}
+  .stepper .step.current .num{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+  .stepper .step.done .num{border-color:var(--accent);background:var(--accent);color:#fff}
+
+  .form-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+  .form-foot .right{display:flex;gap:10px}
+  .stepmeta{font-size:12.5px;color:var(--text-soft);margin-bottom:18px}
+
+  /* ---- Récap ---- */
+  .recap{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .recap .item{padding:12px 4px;border-bottom:1px solid var(--border)}
+  .recap .item .k{font-size:12px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.3px;margin-bottom:3px}
+  .recap .item .v{font-size:14px;color:var(--text);font-weight:500}
+  .recap .item.full{grid-column:1/3}
+
+  .actionbox{margin-top:22px;padding:18px 20px;border:1px solid var(--border);border-radius:var(--radius);background:#fafbfc;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .actionbox .txt strong{display:block;font-size:14.5px}
+  .actionbox .txt span{font-size:13px;color:var(--text-muted)}
+  .actionbox.pending{background:var(--indigo-bg);border-color:#d9d6f5}
+  .actionbox.pending .txt strong{color:var(--indigo-fg)}
+  .actionbox.pending .txt span{color:#5f55b8}
+
+  .lockhint{font-size:12.5px;color:var(--amber-fg);background:var(--amber-bg);padding:8px 12px;border-radius:6px;display:inline-flex;gap:7px;align-items:center}
+  .readonly-note{display:flex;gap:9px;align-items:center;font-size:13px;color:var(--text-muted);background:var(--grey-bg);padding:9px 13px;border-radius:var(--radius-sm);margin-bottom:20px}
+
+  .alert{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-radius:var(--radius-sm);font-size:13.5px;margin-bottom:18px;border:1px solid transparent}
+  .alert-error{background:var(--danger-bg);color:var(--danger-fg);border-color:var(--danger-border)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#101828;color:#fff;padding:11px 18px;border-radius:8px;font-size:14px;box-shadow:var(--shadow-md);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;display:flex;gap:9px;align-items:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---- Login ---- */
+  .authwrap{min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center;padding:24px}
+  .authcard{width:100%;max-width:380px}
+  .authcard .head{text-align:center;margin-bottom:22px}
+  .authcard .logo-lg{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#2f5aa8,#4b7bd4);color:#fff;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+  .authcard h1{font-size:20px;margin:0 0 4px}
+  .authcard .sub{color:var(--text-muted);font-size:13.5px;margin:0}
+  .authcard .foot{margin-top:16px;text-align:center;color:var(--text-soft);font-size:12px}
+
+  /* ---- Accueil ---- */
+  .hello{margin-bottom:22px}
+  .hello h1{margin:0 0 4px;font-size:22px}
+  .hello p{margin:0;color:var(--text-muted)}
+  .navcards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .navcard{display:flex;gap:14px;align-items:flex-start;padding:18px 20px;text-decoration:none;color:inherit;cursor:pointer}
+  .navcard:hover{border-color:var(--accent);box-shadow:var(--shadow-md)}
+  .navcard .ic{width:40px;height:40px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:19px;flex:none}
+  .navcard h3{margin:0 0 3px;font-size:15px}
+  .navcard p{margin:0;color:var(--text-muted);font-size:13px}
+  .queuecard .ic{background:var(--indigo-bg);color:var(--indigo-fg)}
+
+  .hidden{display:none!important}
+  @media(max-width:640px){
+    .grid2,.recap,.navcards{grid-template-columns:1fr}
+    .stepper .step .lbl span:last-child{display:none}
+    .page-head{flex-direction:column}
+    main{padding:20px 16px 56px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ BARRE DE DÉMO ============ -->
+<div class="demobar">
+  <strong>Maquette DataCom</strong>
+  <span style="color:#667085">espaces s&eacute;par&eacute;s par r&ocirc;le</span>
+  <div class="spacer"></div>
+  <nav id="demoNav"></nav>
+  <div class="role">
+    <span>Connect&eacute; en tant que&nbsp;:</span>
+    <div class="rolebtns" id="roleBtns">
+      <button data-role="operator" class="active">Op&eacute;rateur</button>
+      <button data-role="validator">Validateur</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CONNEXION ============ -->
+<section id="screen-login">
+  <div class="authwrap">
+    <div class="authcard card card-pad">
+      <div class="head">
+        <div class="logo-lg">DC</div>
+        <h1>DataCom</h1>
+        <p class="sub">Connectez-vous &agrave; votre espace</p>
+      </div>
+      <div class="alert alert-error">
+        <span>&#9888;&#65039;</span><div>Identifiant ou mot de passe incorrect.</div>
+      </div>
+      <form onsubmit="return demoLogin(event)">
+        <div class="field">
+          <label for="login">Identifiant</label>
+          <input type="text" id="login" value="operateur" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="pwd">Mot de passe</label>
+          <input type="text" id="pwd" value="motdepasse" autocomplete="current-password" style="-webkit-text-security:disc">
+        </div>
+        <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Se connecter</button>
+      </form>
+      <p class="foot">Vous serez redirig&eacute; vers l'espace correspondant &agrave; votre r&ocirc;le.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APPLICATION ============ -->
+<div id="app" class="hidden">
+  <header class="appbar">
+    <div class="brand"><span class="logo">DC</span> DataCom</div>
+    <nav class="appnav" id="appNav"></nav>
+    <div class="spacer"></div>
+    <div class="userchip">
+      <div style="text-align:right">
+        <div class="name" id="userName">John Doe</div>
+        <div class="role-tag" id="userRole">Op&eacute;rateur de saisie</div>
+      </div>
+      <div class="avatar" id="userInitials">JD</div>
+    </div>
+    <button class="linkbtn" onclick="setScreen('login')">D&eacute;connexion</button>
+  </header>
+
+  <!-- ---------- ESPACE OPÉRATEUR ---------- -->
+
+  <!-- Accueil opérateur -->
+  <main id="screen-home" class="hidden">
+    <div class="hello">
+      <h1>Bonjour <span id="helloName">John</span></h1>
+      <p>Espace de saisie. Que souhaitez-vous faire&nbsp;?</p>
+    </div>
+    <div class="navcards">
+      <a class="card navcard" onclick="setScreen('list')">
+        <span class="ic">&#9636;</span>
+        <div><h3>Consulter les produits</h3><p>Parcourir les fiches et leur avancement.</p></div>
+      </a>
+      <a class="card navcard" onclick="goNewProduct()">
+        <span class="ic">&#65291;</span>
+        <div><h3>Nouvelle fiche produit</h3><p>D&eacute;marrer l'enregistrement d'un produit.</p></div>
+      </a>
+    </div>
+  </main>
+
+  <!-- Liste opérateur : toutes les fiches, tous statuts -->
+  <main id="screen-list" class="hidden">
+    <div class="toolbar">
+      <div>
+        <h1 style="margin:0;font-size:22px">Produits</h1>
+        <div class="count">4 fiches &mdash; tous statuts</div>
+      </div>
+      <button class="btn btn-primary" onclick="goNewProduct()"><span class="ic">&#65291;</span> Nouvelle fiche</button>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th style="width:64px">R&eacute;f.</th><th>Produit</th><th style="width:190px">Statut</th><th style="width:160px">Avancement</th><th style="width:80px"></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#106</td>
+            <td><div class="pname">Sonde de pression SP-40</div><div class="pref">REF-SP40-IT</div></td>
+            <td><span class="badge badge-draft">Brouillon</span></td>
+            <td><div class="miniprogress"><div class="bar"><i style="width:25%"></i></div> &Eacute;tape 1/4</div></td>
+            <td><a class="rowlink" onclick="openForm(1)">Ouvrir</a></td>
+          </tr>
+          <tr>
+            <td>#104</td>
+            <td><div class="pname">Capteur thermique T-200</div><div class="pref">REF-T200-FR</div></td>
+            <td><span class="badge badge-draft">Brouillon</span></td>
+            <td><div class="miniprogress"><div class="bar"><i style="width:100%"></i></div> &Eacute;tape 4/4</div></td>
+            <td><a class="rowlink" onclick="openForm(4)">Ouvrir</a></td>
+          </tr>
+          <tr>
+            <td>#103</td>
+            <td><div class="pname">Module de charge MC-9</div><div class="pref">REF-MC9-DE</div></td>
+            <td><span class="badge badge-pending">En attente de validation</span></td>
+            <td><div class="miniprogress"><div class="bar"><i style="width:100%"></i></div> Soumis</div></td>
+            <td><a class="rowlink" onclick="openForm(4)">Ouvrir</a></td>
+          </tr>
+          <tr>
+            <td>#101</td>
+            <td><div class="pname">Bo&icirc;tier &eacute;tanche BX-12</div><div class="pref">REF-BX12-FR</div></td>
+            <td><span class="badge badge-validated">Valid&eacute;</span></td>
+            <td><div class="miniprogress"><div class="bar"><i style="width:100%"></i></div> Termin&eacute;</div></td>
+            <td><a class="rowlink" onclick="openForm(4)">Ouvrir</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Fiche produit (opérateur) -->
+  <main id="screen-form" class="hidden">
+    <div class="page-head">
+      <div>
+        <h1 style="margin:0">Fiche produit <span style="color:var(--text-soft);font-weight:500">#104</span></h1>
+        <p>Capteur thermique T-200 &middot; <span id="formBadge" class="badge badge-draft" style="vertical-align:middle">Brouillon</span></p>
+      </div>
+      <button class="btn btn-ghost" onclick="setScreen('list')"><span class="ic">&#8592;</span> Retour &agrave; la liste</button>
+    </div>
+
+    <div class="card card-pad">
+      <div class="stepper" id="stepper">
+        <div class="step" data-step="1" onclick="setStep(1)"><div class="track"></div><div class="lbl"><span class="num">1</span><span>Identification</span></div></div>
+        <div class="step" data-step="2" onclick="setStep(2)"><div class="track"></div><div class="lbl"><span class="num">2</span><span>Classification</span></div></div>
+        <div class="step" data-step="3" onclick="setStep(3)"><div class="track"></div><div class="lbl"><span class="num">3</span><span>Certification</span></div></div>
+        <div class="step" data-step="4" onclick="setStep(4)"><div class="track"></div><div class="lbl"><span class="num">4</span><span>R&eacute;capitulatif</span></div></div>
+      </div>
+
+      <div class="stepbody" data-body="1">
+        <div class="stepmeta">&Eacute;tape 1 sur 4 &mdash; Identification</div>
+        <div class="field"><label>Nom du produit <span class="req">*</span></label><input type="text" value="Capteur thermique T-200"></div>
+        <div class="field"><label>R&eacute;f&eacute;rence <span class="req">*</span></label><input type="text" value="REF-T200-FR"><div class="hint">Identifiant unique interne du produit.</div></div>
+        <div class="field"><label>Description</label><textarea>Capteur de temp&eacute;rature destin&eacute; aux lignes de production agroalimentaire.</textarea></div>
+      </div>
+
+      <div class="stepbody hidden" data-body="2">
+        <div class="stepmeta">&Eacute;tape 2 sur 4 &mdash; Classification</div>
+        <div class="grid2">
+          <div class="field"><label>Cat&eacute;gorie</label><input type="text" value="Instrumentation"></div>
+          <div class="field"><label>Sous-cat&eacute;gorie</label><input type="text" value="Capteurs"></div>
+          <div class="field"><label>Fabricant</label><input type="text" value="ThermoWorks SA"></div>
+          <div class="field"><label>Pays d'origine</label>
+            <select><option>France</option><option>Allemagne</option><option>Espagne</option><option>Italie</option><option>Chine</option><option>&Eacute;tats-Unis</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="stepbody hidden" data-body="3">
+        <div class="stepmeta">&Eacute;tape 3 sur 4 &mdash; Certification &amp; tra&ccedil;abilit&eacute;</div>
+        <div class="grid2">
+          <div class="field"><label>Num&eacute;ro de lot</label><input type="text" value="LOT-2026-0417"></div>
+          <div class="field"><label>Certification</label><input type="text" value="CE / RoHS"></div>
+        </div>
+        <div class="field"><label>Commentaire de validation</label><textarea placeholder="Observations &eacute;ventuelles&hellip;"></textarea></div>
+      </div>
+
+      <div class="stepbody hidden" data-body="4">
+        <div class="stepmeta">&Eacute;tape 4 sur 4 &mdash; R&eacute;capitulatif avant soumission</div>
+        <div class="recap">
+          <div class="item"><div class="k">Nom</div><div class="v">Capteur thermique T-200</div></div>
+          <div class="item"><div class="k">R&eacute;f&eacute;rence</div><div class="v">REF-T200-FR</div></div>
+          <div class="item"><div class="k">Cat&eacute;gorie</div><div class="v">Instrumentation &middot; Capteurs</div></div>
+          <div class="item"><div class="k">Fabricant</div><div class="v">ThermoWorks SA</div></div>
+          <div class="item"><div class="k">Pays d'origine</div><div class="v">France</div></div>
+          <div class="item"><div class="k">Num&eacute;ro de lot</div><div class="v">LOT-2026-0417</div></div>
+          <div class="item"><div class="k">Certification</div><div class="v">CE / RoHS</div></div>
+          <div class="item"><div class="k">Statut actuel</div><div class="v"><span id="recapBadge" class="badge badge-draft">Brouillon</span></div></div>
+          <div class="item full"><div class="k">Description</div><div class="v" style="font-weight:400">Capteur de temp&eacute;rature destin&eacute; aux lignes de production agroalimentaire.</div></div>
+        </div>
+        <div id="submitZone"></div>
+      </div>
+
+      <div class="form-foot" id="formFoot">
+        <button class="btn btn-secondary" id="btnPrev" onclick="prevStep()"><span class="ic">&#8592;</span> Pr&eacute;c&eacute;dent</button>
+        <div class="right">
+          <button class="btn btn-ghost" onclick="showToast('Brouillon enregistr&eacute;')">Enregistrer le brouillon</button>
+          <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Enregistrer &amp; continuer <span class="ic">&#8594;</span></button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ---------- ESPACE VALIDATEUR ---------- -->
+
+  <!-- Accueil validateur -->
+  <main id="screen-vhome" class="hidden">
+    <div class="hello">
+      <h1>Bonjour <span id="vhelloName">Jane</span></h1>
+      <p>Espace de contr&ocirc;le de conformit&eacute;.</p>
+    </div>
+    <div class="navcards">
+      <a class="card navcard queuecard" onclick="setScreen('queue')">
+        <span class="ic">&#10003;</span>
+        <div><h3>Fiches &agrave; valider</h3><p>2 fiches en attente de votre contr&ocirc;le.</p></div>
+      </a>
+    </div>
+  </main>
+
+  <!-- File d'attente validateur : uniquement PENDING_VALIDATION -->
+  <main id="screen-queue" class="hidden">
+    <div class="toolbar">
+      <div>
+        <h1 style="margin:0;font-size:22px">Fiches &agrave; valider</h1>
+        <div class="count">2 fiches en attente de validation</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th style="width:64px">R&eacute;f.</th><th>Produit</th><th style="width:150px">Fabricant</th><th style="width:190px">Statut</th><th style="width:90px"></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#103</td>
+            <td><div class="pname">Module de charge MC-9</div><div class="pref">REF-MC9-DE</div></td>
+            <td>PowerCell GmbH</td>
+            <td><span class="badge badge-pending">En attente de validation</span></td>
+            <td><a class="rowlink" onclick="setScreen('review')">Contr&ocirc;ler</a></td>
+          </tr>
+          <tr>
+            <td>#102</td>
+            <td><div class="pname">Vanne thermostatique VT-7</div><div class="pref">REF-VT7-ES</div></td>
+            <td>Iberflow SL</td>
+            <td><span class="badge badge-pending">En attente de validation</span></td>
+            <td><a class="rowlink" onclick="setScreen('review')">Contr&ocirc;ler</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details style="margin-top:14px">
+      <summary style="cursor:pointer;color:var(--text-muted);font-size:13px">Voir la variante &laquo;&nbsp;file vide&nbsp;&raquo;</summary>
+      <div class="table-wrap" style="margin-top:10px">
+        <div class="empty">
+          <div class="ic">&#10003;</div>
+          <h3>Aucune fiche en attente</h3>
+          <p>Toutes les fiches soumises ont &eacute;t&eacute; trait&eacute;es.</p>
+        </div>
+      </div>
+    </details>
+  </main>
+
+  <!-- Détail validateur : lecture seule + validation -->
+  <main id="screen-review" class="hidden">
+    <div class="page-head">
+      <div>
+        <h1 style="margin:0">Fiche produit <span style="color:var(--text-soft);font-weight:500">#103</span></h1>
+        <p>Module de charge MC-9 &middot; <span class="badge badge-pending" style="vertical-align:middle">En attente de validation</span></p>
+      </div>
+      <button class="btn btn-ghost" onclick="setScreen('queue')"><span class="ic">&#8592;</span> Retour &agrave; la file</button>
+    </div>
+
+    <div class="card card-pad">
+      <div class="readonly-note">
+        <span>&#128274;</span>
+        <div>Fiche en lecture seule &mdash; la saisie est verrouill&eacute;e depuis sa soumission au contr&ocirc;le.</div>
+      </div>
+
+      <div class="recap">
+        <div class="item"><div class="k">Nom</div><div class="v">Module de charge MC-9</div></div>
+        <div class="item"><div class="k">R&eacute;f&eacute;rence</div><div class="v">REF-MC9-DE</div></div>
+        <div class="item"><div class="k">Cat&eacute;gorie</div><div class="v">&Eacute;lectronique &middot; Alimentation</div></div>
+        <div class="item"><div class="k">Fabricant</div><div class="v">PowerCell GmbH</div></div>
+        <div class="item"><div class="k">Pays d'origine</div><div class="v">Allemagne</div></div>
+        <div class="item"><div class="k">Num&eacute;ro de lot</div><div class="v">LOT-2026-0389</div></div>
+        <div class="item"><div class="k">Certification</div><div class="v">CE / RoHS / IEC 62133</div></div>
+        <div class="item"><div class="k">Soumis par</div><div class="v">John Doe</div></div>
+        <div class="item full"><div class="k">Description</div><div class="v" style="font-weight:400">Module de charge rapide destin&eacute; aux &eacute;quipements industriels mobiles.</div></div>
+        <div class="item full"><div class="k">Commentaire de l'op&eacute;rateur</div><div class="v" style="font-weight:400">Certificats fournisseur joints au dossier papier, r&eacute;f&eacute;rence dossier 2026-0389.</div></div>
+      </div>
+
+      <div class="actionbox">
+        <div class="txt">
+          <strong>Validation de conformit&eacute;</strong>
+          <span>Passe la fiche en statut &laquo;&nbsp;Valid&eacute;&nbsp;&raquo;. Cette action est irr&eacute;versible.</span>
+        </div>
+        <button class="btn btn-success" onclick="validateProduct()"><span class="ic">&#10003;</span> Valider le produit</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"><span>&#10003;</span><span id="toastMsg">Enregistr&eacute;</span></div>
+
+<script>
+  var state={screen:'login',step:1,role:'operator',submitted:false};
+
+  var ROLES={
+    operator:{name:'John Doe',initials:'JD',label:'Op&eacute;rateur de saisie',first:'John',home:'home',
+      nav:[{id:'home',label:'Accueil'},{id:'list',label:'Produits'}],
+      demo:[{id:'home',label:'Accueil'},{id:'list',label:'Liste produits'},{id:'form',label:'Fiche produit'}]},
+    validator:{name:'Jane Doe',initials:'JD',label:'Responsable conformit&eacute;',first:'Jane',home:'vhome',
+      nav:[{id:'vhome',label:'Accueil'},{id:'queue',label:'&Agrave; valider'}],
+      demo:[{id:'vhome',label:'Accueil'},{id:'queue',label:'File d\'attente'},{id:'review',label:'Contr&ocirc;le fiche'}]}
+  };
+
+  var ALL_SCREENS=['home','list','form','vhome','queue','review'];
+
+  function setScreen(name){
+    state.screen=name;
+    var isLogin=(name==='login');
+    document.getElementById('screen-login').classList.toggle('hidden',!isLogin);
+    document.getElementById('app').classList.toggle('hidden',isLogin);
+    ALL_SCREENS.forEach(function(s){
+      document.getElementById('screen-'+s).classList.toggle('hidden', s!==name);
+    });
+    document.querySelectorAll('#appNav a').forEach(function(a){
+      var cur=(a.dataset.screen===name)||(name==='form'&&a.dataset.screen==='list')||(name==='review'&&a.dataset.screen==='queue');
+      a.classList.toggle('current',cur);
+    });
+    document.querySelectorAll('#demoNav button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.screen===name);
+    });
+    window.scrollTo(0,0);
+  }
+
+  function renderNav(){
+    var r=ROLES[state.role];
+    document.getElementById('appNav').innerHTML =
+      r.nav.map(function(n){return '<a data-screen="'+n.id+'" onclick="setScreen(\''+n.id+'\')">'+n.label+'</a>';}).join('');
+    document.getElementById('demoNav').innerHTML =
+      '<button data-screen="login" onclick="setScreen(\'login\')">Connexion</button>' +
+      r.demo.map(function(n){return '<button data-screen="'+n.id+'" onclick="setScreen(\''+n.id+'\')">'+n.label+'</button>';}).join('');
+  }
+
+  function setRole(role){
+    state.role=role;
+    var r=ROLES[role];
+    document.getElementById('userName').textContent=r.name;
+    document.getElementById('userRole').innerHTML=r.label;
+    document.getElementById('userInitials').textContent=r.initials;
+    document.getElementById('helloName').textContent=ROLES.operator.first;
+    document.getElementById('vhelloName').textContent=ROLES.validator.first;
+    document.querySelectorAll('#roleBtns button').forEach(function(b){
+      b.classList.toggle('active', b.dataset.role===role);
+    });
+    renderNav();
+    // Redirection vers l'espace du rôle (comme le ferait le handler post-login)
+    if(state.screen!=='login') setScreen(r.home);
+  }
+
+  function renderSubmitZone(){
+    var z=document.getElementById('submitZone');
+    if(!z) return;
+    if(state.submitted){
+      z.innerHTML='<div class="actionbox pending"><div class="txt">'+
+        '<strong>En attente de validation</strong>'+
+        '<span>Fiche transmise au responsable conformit&eacute;. Elle n\'est plus modifiable.</span>'+
+        '</div><span class="lockhint">&#128274; Lecture seule</span></div>';
+    }else{
+      z.innerHTML='<div class="actionbox"><div class="txt">'+
+        '<strong>Soumettre &agrave; validation</strong>'+
+        '<span>La fiche passera au responsable conformit&eacute; et ne sera plus modifiable.</span>'+
+        '</div><button class="btn btn-primary" onclick="submitProduct()">Soumettre &agrave; validation</button></div>';
+    }
+  }
+
+  function submitProduct(){
+    state.submitted=true;
+    document.getElementById('formBadge').className='badge badge-pending';
+    document.getElementById('formBadge').textContent='En attente de validation';
+    document.getElementById('recapBadge').className='badge badge-pending';
+    document.getElementById('recapBadge').textContent='En attente de validation';
+    document.getElementById('formFoot').classList.add('hidden');
+    renderSubmitZone();
+    showToast('Fiche soumise à validation');
+  }
+
+  function validateProduct(){
+    showToast('Produit validé — retiré de la file');
+    setTimeout(function(){setScreen('queue');},900);
+  }
+
+  function setStep(n){
+    state.step=n;
+    document.querySelectorAll('#stepper .step').forEach(function(s){
+      var i=parseInt(s.dataset.step,10);
+      s.classList.toggle('current', i===n);
+      s.classList.toggle('done', i<n);
+    });
+    document.querySelectorAll('.stepbody').forEach(function(b){
+      b.classList.toggle('hidden', parseInt(b.dataset.body,10)!==n);
+    });
+    document.getElementById('btnPrev').style.visibility = n>1?'visible':'hidden';
+    document.getElementById('btnNext').classList.toggle('hidden', n>=4);
+    document.getElementById('formFoot').classList.toggle('hidden', n===4 && state.submitted);
+    if(n===4) renderSubmitZone();
+    window.scrollTo(0,0);
+  }
+  function nextStep(){ if(state.step<4){ showToast('Étape enregistrée'); setStep(state.step+1);} }
+  function prevStep(){ if(state.step>1) setStep(state.step-1); }
+
+  function openForm(step){ state.submitted=false; document.getElementById('formBadge').className='badge badge-draft';
+    document.getElementById('formBadge').textContent='Brouillon';
+    document.getElementById('recapBadge').className='badge badge-draft';
+    document.getElementById('recapBadge').textContent='Brouillon';
+    setScreen('form'); setStep(step||1); }
+  function goNewProduct(){ openForm(1); showToast('Nouvelle fiche créée (brouillon)'); }
+
+  var toastTimer;
+  function showToast(msg){
+    var t=document.getElementById('toast');
+    document.getElementById('toastMsg').innerHTML=msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){t.classList.remove('show');},1900);
+  }
+
+  function demoLogin(e){ e.preventDefault(); setScreen(ROLES[state.role].home); return false; }
+
+  document.querySelectorAll('#roleBtns button').forEach(function(b){
+    b.addEventListener('click',function(){ setRole(b.dataset.role); });
+  });
+
+  setRole('operator');
+  setStep(1);
+  setScreen('login');
+</script>
+</body>
+</html>
