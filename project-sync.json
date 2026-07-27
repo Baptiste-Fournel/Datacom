@@ -1,5 +1,5 @@
 {
   "result": "echec",
   "project": "",
-  "detail": "GraphQL: Resource not accessible by personal access token (createProjectV2)"
+  "detail": "aucun project contenant datacom accessible avec ce token : GraphQL: Resource not accessible by personal access token (user.projectsV2.nodes.0), Resource not accessible by personal access token (user.projectsV2.nodes.1), Resource not accessible by personal access token (user.projectsV2.nodes.2), Resource not "
 }
