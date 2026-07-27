@@ -1,6 +1,7 @@
 package com.datacom.domain.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,24 @@ class WorkflowStepTest {
         assertThat(WorkflowStep.IDENTIFICATION.isFinal()).isFalse();
         assertThat(WorkflowStep.CLASSIFICATION.isFinal()).isFalse();
         assertThat(WorkflowStep.CERTIFICATION.isFinal()).isFalse();
+    }
+
+    @Test
+    void shouldResolveStepFromNumber_whenNumberIsKnown() {
+        assertThat(WorkflowStep.fromNumber(1)).isEqualTo(WorkflowStep.IDENTIFICATION);
+        assertThat(WorkflowStep.fromNumber(2)).isEqualTo(WorkflowStep.CLASSIFICATION);
+        assertThat(WorkflowStep.fromNumber(3)).isEqualTo(WorkflowStep.CERTIFICATION);
+        assertThat(WorkflowStep.fromNumber(4)).isEqualTo(WorkflowStep.SUMMARY);
+    }
+
+    @Test
+    void shouldRejectResolution_whenNumberIsUnknown() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> WorkflowStep.fromNumber(0))
+                .withMessageContaining("No workflow step");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> WorkflowStep.fromNumber(5))
+                .withMessageContaining("No workflow step");
     }
 
     @Test
