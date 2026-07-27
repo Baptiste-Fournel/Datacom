@@ -5,9 +5,9 @@ on:
   push:
     branches:
       - main
-      - 'feat/**'
+      - develop
+      - 'feature/**'
       - 'fix/**'
-      - 'test/**'
       - 'chore/**'
 
 concurrency:
@@ -18,6 +18,21 @@ permissions:
   contents: write
 
 jobs:
+  branch-policy:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verifier la strategie de branches
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          case "$BASE:$HEAD" in
+            develop:feature/*|develop:fix/*|develop:chore/*|main:develop|main:hotfix/*) echo "conforme" ;;
+            *) echo "PR $HEAD vers $BASE hors strategie (feature/fix/chore -> develop ; develop ou hotfix -> main)" ; exit 1 ;;
+          esac
+
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 25
