@@ -1,11 +1,14 @@
 name: project-sync
 
 on:
+  workflow_dispatch:
   push:
-    branches: [main]
-    paths: ['.github/workflows/project-sync.yml']
+    branches:
+      - main
+      - develop
+      - 'feature/**'
   issues:
-    types: [opened, reopened]
+    types: [opened, reopened, closed]
 
 permissions:
   contents: write
@@ -17,7 +20,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Synchroniser le board Projects
+      - name: Synchroniser le board (items et statuts)
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.ACTIONS_PAT || github.token }}
@@ -27,19 +30,38 @@ jobs:
           set +e
           RESULT=ok
           DETAIL=""
-          NUM=$(gh project list --owner "$OWNER" --format json --limit 50 2>/tmp/err \
-            | jq -r '.projects[] | select(.title=="Datacom — Refonte") | .number' | head -1)
+          PROJECTS=$(gh project list --owner "$OWNER" --format json --limit 50 2>/tmp/err)
+          NUM=$(echo "$PROJECTS" | jq -r '[.projects[] | select(.title | test("datacom"; "i"))][0].number // empty')
+          PID=$(echo "$PROJECTS" | jq -r '[.projects[] | select(.title | test("datacom"; "i"))][0].id // empty')
           if [ -z "$NUM" ]; then
-            NUM=$(gh project create --owner "$OWNER" --title "Datacom — Refonte" --format json 2>/tmp/err \
-              | jq -r '.number')
-          fi
-          if [ -z "$NUM" ] || [ "$NUM" = "null" ]; then
             RESULT=echec
-            DETAIL=$(head -c 400 /tmp/err)
+            DETAIL="aucun project contenant datacom accessible avec ce token : $(head -c 250 /tmp/err)"
           else
             for URL in $(gh issue list -R "$OWNER/$REPO" --state all --limit 100 --json url -q '.[].url'); do
               gh project item-add "$NUM" --owner "$OWNER" --url "$URL" >/dev/null 2>&1
             done
+            FIELDS=$(gh project field-list "$NUM" --owner "$OWNER" --format json 2>/dev/null)
+            FID=$(echo "$FIELDS" | jq -r '.fields[] | select(.name == "Status") | .id')
+            OPT_TODO=$(echo "$FIELDS" | jq -r '.fields[] | select(.name == "Status") | .options[] | select(.name == "Todo") | .id')
+            OPT_WIP=$(echo "$FIELDS" | jq -r '.fields[] | select(.name == "Status") | .options[] | select(.name == "In Progress") | .id')
+            OPT_DONE=$(echo "$FIELDS" | jq -r '.fields[] | select(.name == "Status") | .options[] | select(.name == "Done") | .id')
+            BRANCHES=$(git ls-remote --heads origin 'refs/heads/feature/*' | awk -F/ '{print $4}')
+            gh project item-list "$NUM" --owner "$OWNER" --format json --limit 200 2>/dev/null \
+              | jq -r '.items[] | select(.content.type == "Issue") | [.id, .content.number, .status // "", (.content.title | capture("T(?<t>[0-9]+)").t // "")] | @tsv' \
+              | while IFS=$'\t' read -r ITEM NUMBER STATUS TCODE; do
+                  STATE=$(gh issue view "$NUMBER" -R "$OWNER/$REPO" --json state -q .state 2>/dev/null)
+                  TARGET="$OPT_TODO"
+                  TARGET_NAME="Todo"
+                  if [ "$STATE" = "CLOSED" ]; then
+                    TARGET="$OPT_DONE"; TARGET_NAME="Done"
+                  elif [ -n "$TCODE" ] && echo "$BRANCHES" | grep -q "T${TCODE}-"; then
+                    TARGET="$OPT_WIP"; TARGET_NAME="In Progress"
+                  fi
+                  if [ -n "$TARGET" ] && [ "$STATUS" != "$TARGET_NAME" ]; then
+                    gh project item-edit --project-id "$PID" --id "$ITEM" \
+                      --field-id "$FID" --single-select-option-id "$TARGET" >/dev/null 2>&1
+                  fi
+                done
           fi
           jq -n --arg r "$RESULT" --arg n "${NUM:-}" --arg d "$DETAIL" \
             '{result:$r, project:$n, detail:$d}' > /tmp/project.json
