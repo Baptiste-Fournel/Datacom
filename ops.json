@@ -1,3 +1,3 @@
 {
-  "log": "tag: ops-debut-t09\nstart 9\n! Issue Baptiste-Fournel/Datacom#9 (T09 — Persistance : mapping JPA et repositories) is already open\nhttps://github.com/Baptiste-Fournel/Datacom/issues/9\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-debut-t09\n"
+  "log": "tag: ops-fin-t09\ndone 9 Livre dans develop (squash, CI verte, ITs Testcontainers passees).\nhttps://github.com/Baptiste-Fournel/Datacom/issues/9\n✓ Closed issue Baptiste-Fournel/Datacom#9 (T09 — Persistance : mapping JPA et repositories)\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-fin-t09\n"
 }
