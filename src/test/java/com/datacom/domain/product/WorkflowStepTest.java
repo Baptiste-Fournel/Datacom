@@ -10,6 +10,7 @@ class WorkflowStepTest {
 
     @Test
     void shouldFollowDeclaredOrder_whenAdvancingThroughSteps() {
+        // Assert
         assertThat(WorkflowStep.IDENTIFICATION.next()).isEqualTo(WorkflowStep.CLASSIFICATION);
         assertThat(WorkflowStep.CLASSIFICATION.next()).isEqualTo(WorkflowStep.CERTIFICATION);
         assertThat(WorkflowStep.CERTIFICATION.next()).isEqualTo(WorkflowStep.SUMMARY);
@@ -17,6 +18,7 @@ class WorkflowStepTest {
 
     @Test
     void shouldRejectProgression_whenAtFinalStep() {
+        // Assert
         assertThatIllegalStateException()
                 .isThrownBy(WorkflowStep.SUMMARY::next)
                 .withMessageContaining("final step");
@@ -24,6 +26,7 @@ class WorkflowStepTest {
 
     @Test
     void shouldMarkOnlyLastStepAsFinal_whenInspectingSteps() {
+        // Assert
         assertThat(WorkflowStep.SUMMARY.isFinal()).isTrue();
         assertThat(WorkflowStep.IDENTIFICATION.isFinal()).isFalse();
         assertThat(WorkflowStep.CLASSIFICATION.isFinal()).isFalse();
@@ -32,6 +35,7 @@ class WorkflowStepTest {
 
     @Test
     void shouldResolveStepFromNumber_whenNumberIsKnown() {
+        // Assert
         assertThat(WorkflowStep.fromNumber(1)).isEqualTo(WorkflowStep.IDENTIFICATION);
         assertThat(WorkflowStep.fromNumber(2)).isEqualTo(WorkflowStep.CLASSIFICATION);
         assertThat(WorkflowStep.fromNumber(3)).isEqualTo(WorkflowStep.CERTIFICATION);
@@ -40,6 +44,7 @@ class WorkflowStepTest {
 
     @Test
     void shouldRejectResolution_whenNumberIsUnknown() {
+        // Assert
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> WorkflowStep.fromNumber(0))
                 .withMessageContaining("No workflow step");
@@ -50,6 +55,7 @@ class WorkflowStepTest {
 
     @Test
     void shouldExposeNumbersOneToFour_whenReadingSteps() {
+        // Assert
         assertThat(WorkflowStep.IDENTIFICATION.number()).isEqualTo(1);
         assertThat(WorkflowStep.CLASSIFICATION.number()).isEqualTo(2);
         assertThat(WorkflowStep.CERTIFICATION.number()).isEqualTo(3);

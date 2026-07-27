@@ -14,16 +14,20 @@ class ProductTest {
 
     @Test
     void shouldStartAsDraftAtFirstStep_whenCreated() {
+        // Arrange
         Product product = Product.createDraft(CREATOR_ID, CREATION_DATE);
 
+        // Assert
         assertThat(product.status()).isEqualTo(ProductStatus.DRAFT);
         assertThat(product.currentStep()).isEqualTo(WorkflowStep.IDENTIFICATION);
     }
 
     @Test
     void shouldRecordCreatorAndDates_whenCreated() {
+        // Arrange
         Product product = Product.createDraft(CREATOR_ID, CREATION_DATE);
 
+        // Assert
         assertThat(product.createdBy()).isEqualTo(CREATOR_ID);
         assertThat(product.createdAt()).isEqualTo(CREATION_DATE);
         assertThat(product.updatedAt()).isEqualTo(CREATION_DATE);
@@ -31,6 +35,7 @@ class ProductTest {
 
     @Test
     void shouldRejectCreation_whenCreatorIdIsInvalid() {
+        // Assert
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Product.createDraft(0L, CREATION_DATE))
                 .withMessageContaining("creator");
@@ -41,6 +46,7 @@ class ProductTest {
 
     @Test
     void shouldRejectCreation_whenCreationDateIsMissing() {
+        // Assert
         assertThatNullPointerException()
                 .isThrownBy(() -> Product.createDraft(CREATOR_ID, null))
                 .withMessageContaining("creation date");

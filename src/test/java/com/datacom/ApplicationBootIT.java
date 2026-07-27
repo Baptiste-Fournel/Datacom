@@ -24,17 +24,21 @@ class ApplicationBootIT {
 
     @Test
     void shouldApplyAllMigrations_whenApplicationStarts() {
+        // When
         Integer migrations = jdbc.queryForObject(
                 "SELECT count(*) FROM flyway_schema_history WHERE success = true", Integer.class);
 
+        // Then
         assertThat(migrations).isGreaterThanOrEqualTo(2);
     }
 
     @Test
     void shouldSeedUsersWithHashedPasswords_whenMigrationsRun() {
+        // When
         Integer accounts = jdbc.queryForObject(
                 "SELECT count(*) FROM users WHERE password_hash LIKE '$2%'", Integer.class);
 
+        // Then
         assertThat(accounts).isEqualTo(2);
     }
 }
