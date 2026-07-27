@@ -9,7 +9,7 @@ on:
 
 permissions:
   pull-requests: write
-  contents: read
+  contents: write
 
 jobs:
   open-pr:
@@ -18,8 +18,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Ouvrir la PR si absente
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.ACTIONS_PAT || github.token }}
         run: |
-          gh pr view "$GITHUB_REF_NAME" >/dev/null 2>&1 && exit 0
-          gh pr create --base develop --head "$GITHUB_REF_NAME" --fill-first
+          set +e
+          echo "acteur: $(gh api user -q .login 2>&1)" > /tmp/pr.log
+          if gh pr view "$GITHUB_REF_NAME" >>/tmp/pr.log 2>&1; then
+            echo "PR deja ouverte" >> /tmp/pr.log
+          else
+            gh pr create --base develop --head "$GITHUB_REF_NAME" --fill-first >>/tmp/pr.log 2>&1
+          fi
+          cat /tmp/pr.log
+      - name: Rapport vers ci-status
+        if: always()
+        shell: bash
+        env:
+          OUTCOME: ${{ job.status }}
+        run: |
+          jq -n --arg branch "$GITHUB_REF_NAME" --arg outcome "$OUTCOME" \
+            --rawfile log /tmp/pr.log '{branch:$branch, outcome:$outcome, log:$log}' > /tmp/autoflow.json
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          if git fetch origin ci-status 2>/dev/null; then
+            git checkout -B ci-status origin/ci-status
+          else
+            git checkout --orphan ci-status
+            git rm -rf --cached . >/dev/null 2>&1 || true
+          fi
+          cp /tmp/autoflow.json autoflow.json
+          git add autoflow.json
+          git commit -m "ci: rapport autoflow" >/dev/null || exit 0
+          for i in 1 2 3; do
+            git push origin ci-status && break
+            git fetch origin ci-status && git rebase origin/ci-status
+          done

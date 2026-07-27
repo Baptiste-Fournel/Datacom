@@ -59,6 +59,8 @@ Solliciter Baptiste **uniquement** si : ambiguïté métier réelle, décision i
 - **Pousser une branche** `feature/Txx-...` → le workflow `autoflow` ouvre la PR vers `develop` automatiquement.
 - **Lire le résultat de la CI** : `git fetch origin ci-status` puis lire `status/<sha>.json` sur cette branche (conclusion + dernières lignes du log Maven en cas d'échec). Le sha à chercher est celui du sommet de la branche poussée.
 - **Merger** : uniquement quand le rapport est `success` → `git merge --no-ff feature/Txx` sur `develop` avec `Closes #<numero>` dans le message, puis push de `develop` (la PR se ferme en « merged »). Supprimer ensuite la branche distante. Les issues se ferment à la release (`develop → main`).
+- **Cycle de vie des tickets** : pousser un tag annoté `ops-<slug>` dont le message contient une commande par ligne — `start <n>` (label « in progress »), `done <n> [commentaire]` (retire le label et ferme l'issue), `comment <n> <texte>`, `reopen <n>`. Le workflow `ops` exécute avec les droits du repo puis supprime le tag ; rapport dans `ops.json` sur `ci-status`. Rituel : `start` à l'ouverture de la branche, `done` au merge dans `develop`.
+- **Releases** : merge `develop → main` + tag `v0.<phase>` quand une phase est complète (jugement au fil de l'eau) ; la CD publie l'image.
 - **Numéros des tickets** : `roadmap/issues.json` sur la branche `ci-status` (publié par le workflow `bootstrap-roadmap`).
 
 ## Définition of done d'un ticket
