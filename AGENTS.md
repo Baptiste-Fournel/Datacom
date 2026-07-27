@@ -13,17 +13,26 @@ Refonte from scratch d'une application legacy (séminaire « Réécriture & séc
 7. **Lisibilité maximale.** Méthodes ≤ 30 lignes, complexité cyclomatique ≤ 10, imbrication ≤ 2 (Checkstyle bloquant). Identifiants de production en anglais ; noms de méthodes de test en français descriptif (`brouillonComplet_passeEnAttenteDeValidation`).
 8. **Ne rien inventer.** Toute règle métier absente de `docs/` ou des issues est une question pour Baptiste, pas une supposition. On pose la question et on s'arrête sur ce point-là (on continue sur un autre ticket si possible).
 
+## Stratégie de branches (Git Flow allégé)
+
+- **`main`** : stable, ne reçoit que des releases — merges de `develop` (fin de phase) ou `hotfix/*`. Chaque merge sur main est taggé `v0.<phase>` puis `v1.0.0`. La CD publie l'image depuis main.
+- **`develop`** : intégration continue des tickets. Toujours verte.
+- **`feature/T<numero>-<slug>`** : une branche par ticket, créée depuis `develop`, mergée en `--no-ff` dans `develop`, supprimée après merge.
+- **`fix/*`** (anomalie sur develop) et **`hotfix/*`** (urgence sur main) : mêmes règles.
+- La conformité des PR est vérifiée par le job `branch-policy` de la CI : `feature/fix/chore → develop`, `develop|hotfix → main`. Toute autre cible échoue.
+- **Clarté de l'historique — non négociable** : 2 à 3 commits par ticket (`test:` puis `feat:`, éventuellement `refactor:`), preuve du cycle TDD. Aucun commit de plomberie (« fix du fix ») : corriger par `commit --amend`/squash sur la branche avant merge. Messages Conventional Commits, `Closes #<n>` dans le commit de merge (l'issue se ferme quand le commit atteint `main` à la release).
+
 ## Boucle de travail par ticket
 
 1. Choisir le ticket ouvert le plus prioritaire (ordre des phases, puis ordre des numéros) ; le passer en « in progress ».
-2. Créer une branche `feat/T<numero>-<slug>` depuis `main` à jour.
+2. Créer une branche `feature/T<numero>-<slug>` depuis `develop` à jour.
 3. **Red** : écrire les tests qui expriment les critères d'acceptation du ticket ; vérifier qu'ils échouent.
 4. **Green** : écrire le minimum de code de production pour les faire passer.
 5. **Refactor** : nettoyer sans changer le comportement.
 6. **Revue adversariale** : relire le diff en cherchant activement les violations (SOLID, YAGNI, lisibilité, sécurité, cas limites oubliés). Avec un agent : confier cette revue à un sous-agent au contexte vierge et traiter chaque objection.
 7. Vérifier : `./mvnw verify` (dans un environnement sans Docker : `./mvnw verify -DskipITs`, la CI exécute les ITs).
 8. Ouvrir une PR (template fourni), message et commits en Conventional Commits (`feat:`, `test:`, `refactor:`, `chore:`, `ci:`, `docs:`).
-9. Merge (squash) uniquement quand la CI est verte ; fermer le ticket via `Closes #<numero>` ; passer au suivant.
+9. Merge `--no-ff` dans `develop` uniquement quand la CI est verte, avec `Closes #<numero>` dans le message ; supprimer la branche ; passer au suivant. En fin de phase : merge `develop → main` + tag.
 
 Solliciter Baptiste **uniquement** si : ambiguïté métier réelle, décision irréversible non documentée, ou deux échecs successifs sur le même obstacle.
 
@@ -47,9 +56,9 @@ Solliciter Baptiste **uniquement** si : ambiguïté métier réelle, décision i
 
 ## Pilotage GitHub par git uniquement (depuis le sandbox)
 
-- **Pousser une branche** `feat/Txx-...` → le workflow `autoflow` ouvre la PR automatiquement.
+- **Pousser une branche** `feature/Txx-...` → le workflow `autoflow` ouvre la PR vers `develop` automatiquement.
 - **Lire le résultat de la CI** : `git fetch origin ci-status` puis lire `status/<sha>.json` sur cette branche (conclusion + dernières lignes du log Maven en cas d'échec). Le sha à chercher est celui du sommet de la branche poussée.
-- **Merger** : uniquement quand le rapport est `success` → `git merge --no-ff feat/Txx` sur `main` avec `Closes #<numero>` dans le message, puis push de `main` (la PR se ferme en « merged », l'issue se ferme, `ci` et `cd` tournent sur main). Supprimer ensuite la branche distante.
+- **Merger** : uniquement quand le rapport est `success` → `git merge --no-ff feature/Txx` sur `develop` avec `Closes #<numero>` dans le message, puis push de `develop` (la PR se ferme en « merged »). Supprimer ensuite la branche distante. Les issues se ferment à la release (`develop → main`).
 - **Numéros des tickets** : `roadmap/issues.json` sur la branche `ci-status` (publié par le workflow `bootstrap-roadmap`).
 
 ## Définition of done d'un ticket
