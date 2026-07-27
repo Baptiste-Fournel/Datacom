@@ -10,7 +10,7 @@ La décision « rendu côté serveur Thymeleaf » avait été prise dans un cont
 
 ## Décision
 
-Le backend expose une **API REST** (sessions Spring Security, pas de rendu HTML) ; le front est une application **SvelteKit** dans un dépôt séparé, consommant cette API. Le contrat vit dans `docs/specs-front.md` et toute évolution passe par une PR sur ce fichier.
+Le backend expose une **API REST** (sessions Spring Security, pas de rendu HTML) ; le front est une application **SvelteKit** dans un dépôt séparé, consommant cette API. Le contrat vit dans `docs/openapi.yaml` (OpenAPI 3) et toute évolution passe par une PR sur ce fichier.
 
 ## Options considérées
 
@@ -31,4 +31,4 @@ Le backend expose une **API REST** (sessions Spring Security, pas de rendu HTML)
 
 - Les tickets de la phase 4 (T14-T18) sont **réinterprétés en endpoints REST** (mêmes périmètres fonctionnels, plus de templates) ; les tickets sécurité T11-T13 passent au login JSON + CSRF cookie. Les trois niveaux de défense de l'ADR-001 (URL → service → domaine) restent inchangés.
 - La maquette `docs/maquette-ui.html` reste la **référence visuelle** ; ses tokens sont transposés dans la config Tailwind du front (voir specs).
-- Le repo front est créé et tenu par le développeur front ; le back n'héberge que le contrat.
+- Le repo front est créé et tenu par le développeur front ; le back n'héberge que le contrat OpenAPI.
