@@ -1,6 +1,6 @@
 # AGENTS.md — Règles de développement du projet Datacom
 
-Refonte from scratch d'une application legacy (séminaire « Réécriture & sécurisation d'une application monolithique »). Contexte complet dans `docs/analyse-existant-et-refonte.md` et `docs/adr/ADR-001-espaces-par-role.md`. Périmètre actuel : **backend uniquement** (phases 0 à 3, puis web SSR en phase 4). La roadmap vit dans les issues GitHub et le board Projects « Datacom — Refonte ».
+Refonte from scratch d'une application legacy (séminaire « Réécriture & sécurisation d'une application monolithique »). Contexte complet dans `docs/analyse-existant-et-refonte.md`, `docs/adr/ADR-001-espaces-par-role.md` et `docs/adr/ADR-002-api-rest-front-sveltekit.md`. Ce dépôt = **backend API REST** ; le front SvelteKit vit dans un dépôt séparé tenu par le développeur front — le contrat partagé est `docs/specs-front.md` (toute évolution par PR). La phase 4 s'implémente en endpoints REST, la sécurité (phase 3) en login JSON + CSRF cookie. La roadmap vit dans les issues GitHub et le board Projects.
 
 ## Règles non négociables
 
