@@ -10,7 +10,7 @@ Refonte from scratch d'une application legacy (séminaire « Réécriture & séc
 4. **Architecture dirigée vers le domaine.** Couches `domain` / `application` / `infrastructure` / `web`. Le domaine ne dépend de rien (Spring interdit dans le domaine), les repositories sont des interfaces du domaine implémentées par l'infrastructure. Règle exécutable : `ArchitectureRulesTest`.
 5. **SOLID obligatoire**, en particulier : une raison de changer par classe (SRP), dépendre d'abstractions définies côté domaine (DIP).
 6. **DRY et YAGNI.** Pas d'abstraction avant le deuxième usage réel. Pas de pattern sans problème présent. Pas de champ, paramètre ou indirection « pour plus tard ».
-7. **Lisibilité maximale.** Méthodes ≤ 30 lignes, complexité cyclomatique ≤ 10, imbrication ≤ 2 (Checkstyle bloquant). Identifiants de production en anglais ; noms de méthodes de test en français descriptif (`brouillonComplet_passeEnAttenteDeValidation`).
+7. **Lisibilité maximale.** Méthodes ≤ 30 lignes, complexité cyclomatique ≤ 10, imbrication ≤ 2 (Checkstyle bloquant). **Tous les identifiants en anglais, sans aucun mélange de langues.** Convention de nommage des tests : `should<ComportementAttendu>_when<Condition>` (ex. `shouldRejectSubmission_whenDraftIsIncomplete`).
 8. **Ne rien inventer.** Toute règle métier absente de `docs/` ou des issues est une question pour Baptiste, pas une supposition. On pose la question et on s'arrête sur ce point-là (on continue sur un autre ticket si possible).
 
 ## Stratégie de branches (Git Flow allégé)

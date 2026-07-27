@@ -13,7 +13,7 @@ class ProductSubmissionTest {
     private static final Instant SUBMISSION_DATE = Instant.parse("2026-07-27T14:00:00Z");
 
     @Test
-    void unBrouillonCompletPasseEnAttenteDeValidation() {
+    void shouldMoveToPendingValidation_whenSubmittedAtFinalStep() {
         Product product = draftAtFinalStep();
 
         product.submitForValidation(SUBMISSION_DATE);
@@ -24,7 +24,7 @@ class ProductSubmissionTest {
     }
 
     @Test
-    void unBrouillonIncompletEstRefuseALaSoumission() {
+    void shouldRejectSubmission_whenDraftIsAtFirstStep() {
         Product product = Product.createDraft(42L, CREATION_DATE);
 
         assertThatExceptionOfType(IncompleteProductException.class)
@@ -35,7 +35,7 @@ class ProductSubmissionTest {
     }
 
     @Test
-    void unBrouillonAuxEtapesIntermediairesResteIncomplet() {
+    void shouldRejectSubmission_whenDraftIsAtIntermediateStep() {
         Product product = Product.createDraft(42L, CREATION_DATE);
         product.advanceToNextStep(CREATION_DATE);
         product.advanceToNextStep(CREATION_DATE);
@@ -47,7 +47,7 @@ class ProductSubmissionTest {
     }
 
     @Test
-    void unProduitDejaSoumisNeSeResoumetPas() {
+    void shouldRejectSubmission_whenAlreadySubmitted() {
         Product product = draftAtFinalStep();
         product.submitForValidation(SUBMISSION_DATE);
         Instant retry = Instant.parse("2026-07-27T16:00:00Z");
@@ -60,7 +60,7 @@ class ProductSubmissionTest {
     }
 
     @Test
-    void uneFicheSoumiseNEstPlusModifiable() {
+    void shouldRejectAnyEdit_whenSubmitted() {
         Product product = draftAtFinalStep();
         product.submitForValidation(SUBMISSION_DATE);
         Instant later = Instant.parse("2026-07-27T15:00:00Z");

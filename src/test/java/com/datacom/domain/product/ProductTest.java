@@ -13,7 +13,7 @@ class ProductTest {
     private static final Instant CREATION_DATE = Instant.parse("2026-07-27T10:00:00Z");
 
     @Test
-    void unNouveauProduitNaitEnBrouillonALaPremiereEtape() {
+    void shouldStartAsDraftAtFirstStep_whenCreated() {
         Product product = Product.createDraft(CREATOR_ID, CREATION_DATE);
 
         assertThat(product.status()).isEqualTo(ProductStatus.DRAFT);
@@ -21,7 +21,7 @@ class ProductTest {
     }
 
     @Test
-    void unNouveauProduitConnaitSonCreateurEtSesDates() {
+    void shouldRecordCreatorAndDates_whenCreated() {
         Product product = Product.createDraft(CREATOR_ID, CREATION_DATE);
 
         assertThat(product.createdBy()).isEqualTo(CREATOR_ID);
@@ -30,7 +30,7 @@ class ProductTest {
     }
 
     @Test
-    void unProduitSansCreateurValideEstRefuse() {
+    void shouldRejectCreation_whenCreatorIdIsInvalid() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> Product.createDraft(0L, CREATION_DATE))
                 .withMessageContaining("creator");
@@ -40,7 +40,7 @@ class ProductTest {
     }
 
     @Test
-    void unProduitSansDateDeCreationEstRefuse() {
+    void shouldRejectCreation_whenCreationDateIsMissing() {
         assertThatNullPointerException()
                 .isThrownBy(() -> Product.createDraft(CREATOR_ID, null))
                 .withMessageContaining("creation date");

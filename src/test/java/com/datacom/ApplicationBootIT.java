@@ -23,7 +23,7 @@ class ApplicationBootIT {
     private JdbcTemplate jdbc;
 
     @Test
-    void lApplicationDemarreEtLesMigrationsSontAppliquees() {
+    void shouldApplyAllMigrations_whenApplicationStarts() {
         Integer migrations = jdbc.queryForObject(
                 "SELECT count(*) FROM flyway_schema_history WHERE success = true", Integer.class);
 
@@ -31,10 +31,10 @@ class ApplicationBootIT {
     }
 
     @Test
-    void lesComptesInitiauxSontPresentsAvecDesMotsDePasseHaches() {
-        Integer comptes = jdbc.queryForObject(
+    void shouldSeedUsersWithHashedPasswords_whenMigrationsRun() {
+        Integer accounts = jdbc.queryForObject(
                 "SELECT count(*) FROM users WHERE password_hash LIKE '$2%'", Integer.class);
 
-        assertThat(comptes).isEqualTo(2);
+        assertThat(accounts).isEqualTo(2);
     }
 }
