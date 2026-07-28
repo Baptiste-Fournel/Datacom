@@ -1,3 +1,3 @@
 {
-  "log": "tag: ops-debut-t19\nstart 19\n! Issue Baptiste-Fournel/Datacom#19 (T19 — Durcissement : gestion d'erreurs centralisée) is already open\nhttps://github.com/Baptiste-Fournel/Datacom/issues/19\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-debut-t19\n"
+  "log": "tag: ops-fin-t19\ndone 19 Livre dans develop (squash, CI verte, conflit de merge resolu en faveur du sur-ensemble T19).\nhttps://github.com/Baptiste-Fournel/Datacom/issues/19\n✓ Closed issue Baptiste-Fournel/Datacom#19 (T19 — Durcissement : gestion d'erreurs centralisée)\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-fin-t19\n"
 }
