@@ -1,3 +1,3 @@
 {
-  "log": "tag: ops-fin-t10\ndone 10 Livre dans develop (squash, CI verte, ITs Testcontainers). Phase 2 complete.\nhttps://github.com/Baptiste-Fournel/Datacom/issues/10\n✓ Closed issue Baptiste-Fournel/Datacom#10 (T10 — Persistance : requêtes intentionnelles + ITs Testcontainers)\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-fin-t10\n"
+  "log": "tag: ops-debut-t11\nstart 11\n! Issue Baptiste-Fournel/Datacom#11 (T11 — Sécurité : authentification BCrypt, sessions, CSRF) is already open\nhttps://github.com/Baptiste-Fournel/Datacom/issues/11\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-debut-t11\n"
 }
