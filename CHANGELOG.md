@@ -2,6 +2,19 @@
 
 Toutes les évolutions notables de DataCom. Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/). Le projet a été construit en six phases livrées et taguées incrémentalement.
 
+## [1.0.3] — 2026-07-29
+
+### Modifié
+- Roadmap tenue exclusivement dans le board GitHub Projects : `project-sync` cible le board existant (jamais de création) et positionne les tickets de développement sur la chronologie lun. 27 → mer. 29 juillet, l'oral réservé au jeu. 30.
+
+### Supprimé
+- Version HTML de la roadmap (`docs/roadmap.html`), redondante avec le board GitHub Projects.
+
+## [1.0.2] — 2026-07-29
+
+### Corrigé
+- Fin de la création de boards Projects en double : `project-sync` ne crée plus de board et ne s'exécute qu'à la demande (ou sur modification du workflow).
+
 ## [1.0.1] — 2026-07-29
 
 ### Ajouté
