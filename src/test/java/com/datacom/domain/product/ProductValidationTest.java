@@ -101,15 +101,12 @@ class ProductValidationTest {
 
         // Assert
         assertThat(product.isEditable()).isFalse();
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.updateIdentification("n", "r", "d", later))
-                .withMessageContaining("editable");
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.advanceToNextStep(later))
-                .withMessageContaining("editable");
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.submitForValidation(later))
-                .withMessageContaining("draft");
+        assertThatExceptionOfType(NotEditableException.class)
+                .isThrownBy(() -> product.updateIdentification("n", "r", "d", later));
+        assertThatExceptionOfType(NotEditableException.class)
+                .isThrownBy(() -> product.advanceToNextStep(later));
+        assertThatExceptionOfType(NotEditableException.class)
+                .isThrownBy(() -> product.submitForValidation(later));
         assertThat(product.status()).isEqualTo(ProductStatus.VALIDATED);
         assertThat(product.updatedAt()).isEqualTo(VALIDATION_DATE);
     }
