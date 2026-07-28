@@ -1,3 +1,3 @@
 {
-  "log": "tag: ops-debut-t17\nstart 17\n! Issue Baptiste-Fournel/Datacom#17 (T17 — Web : soumission à validation depuis le récapitulatif) is already open\nhttps://github.com/Baptiste-Fournel/Datacom/issues/17\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-debut-t17\n"
+  "log": "tag: ops-fin-t17\ndone 17 Livre dans develop (squash, CI verte). Le parcours operateur complet (create -> edit -> advance -> submit) est fonctionnel de bout en bout.\nhttps://github.com/Baptiste-Fournel/Datacom/issues/17\n✓ Closed issue Baptiste-Fournel/Datacom#17 (T17 — Web : soumission à validation depuis le récapitulatif)\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-fin-t17\n"
 }
