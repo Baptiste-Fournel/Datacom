@@ -14,3 +14,7 @@ server:
     session:
       cookie:
         name: SESSION
+
+datacom:
+  cors:
+    allowed-origins: ${FRONT_ORIGINS:http://localhost:5173}
