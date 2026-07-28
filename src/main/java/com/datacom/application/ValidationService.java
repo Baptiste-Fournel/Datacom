@@ -6,11 +6,15 @@ import com.datacom.domain.product.ProductStatus;
 import com.datacom.domain.user.User;
 import java.time.Instant;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ValidationService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ValidationService.class);
 
     private final ProductRepository productRepository;
     private final UserService userService;
@@ -39,6 +43,8 @@ public class ValidationService {
         Product product = loadPendingProduct(id);
         User validator = userService.requireByLogin(validatorLogin);
         product.validate(validator, Instant.now());
-        return productRepository.save(product);
+        Product validated = productRepository.save(product);
+        LOG.info("Product {} validated by {}", id, validatorLogin);
+        return validated;
     }
 }
