@@ -1,3 +1,3 @@
 {
-  "log": "tag: ops-debut-t16\nstart 16\n! Issue Baptiste-Fournel/Datacom#16 (T16 — Web : fiche produit en 4 étapes (édition)) is already open\nhttps://github.com/Baptiste-Fournel/Datacom/issues/16\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-debut-t16\n"
+  "log": "tag: ops-fin-t16\ndone 16 Livre dans develop (squash, CI verte). Perimetre etendu assume : POST /api/products et GET /api/products/{id} rattaches a la tranche d edition. Exceptions domaine typees NotEditable/IllegalTransition nees ici.\nhttps://github.com/Baptiste-Fournel/Datacom/issues/16\n✓ Closed issue Baptiste-Fournel/Datacom#16 (T16 — Web : fiche produit en 4 étapes (édition))\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-fin-t16\n"
 }
