@@ -23,7 +23,7 @@ public enum WorkflowStep {
 
     public WorkflowStep next() {
         if (isFinal()) {
-            throw new IllegalStateException("The final step does not allow any progression");
+            throw new IllegalTransitionException("The final step does not allow any progression");
         }
         return values()[ordinal() + 1];
     }

@@ -1,8 +1,8 @@
 package com.datacom.domain.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ class WorkflowStepTest {
     @Test
     void shouldRejectProgression_whenAtFinalStep() {
         // Assert
-        assertThatIllegalStateException()
+        assertThatExceptionOfType(IllegalTransitionException.class)
                 .isThrownBy(WorkflowStep.SUMMARY::next)
                 .withMessageContaining("final step");
     }
