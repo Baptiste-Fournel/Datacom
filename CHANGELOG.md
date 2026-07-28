@@ -2,6 +2,14 @@
 
 Toutes les évolutions notables de DataCom. Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/). Le projet a été construit en six phases livrées et taguées incrémentalement.
 
+## [1.0.4] — 2026-07-29
+
+### Ajouté
+- Rapport de synchronisation enrichi (branche `ci-status`) : URL du board, nombre d'items et liste des boards « Datacom » pour repérer d'éventuels doublons.
+
+### Modifié
+- `project-sync` peut se resynchroniser depuis `develop` (déclenchement restreint au fichier de workflow) ; sélection stricte du board existant, jamais de création.
+
 ## [1.0.3] — 2026-07-29
 
 ### Modifié
