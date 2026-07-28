@@ -1,5 +1,5 @@
 {
   "branch": "feature/T19-erreurs-centralisees",
   "outcome": "success",
-  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"feature/T19-erreurs-centralisees\"\nhttps://github.com/Baptiste-Fournel/Datacom/pull/35\n"
+  "log": "acteur: Baptiste-Fournel\ntitle:\trelease: phase 2 - persistance (v0.2.0)\nstate:\tOPEN\nauthor:\tBaptiste-Fournel (Baptiste59)\nlabels:\t\nassignees:\t\nreviewers:\t\nprojects:\t\nmilestone:\t\nnumber:\t35\nurl:\thttps://github.com/Baptiste-Fournel/Datacom/pull/35\nadditions:\t2264\ndeletions:\t38\nauto-merge:\tdisabled\n--\nMapping JPA du domaine (compromis documente), repositories diriges par le\ndomaine (DIP), converter d etapes, requete intentionnelle de la file du\nvalidateur. Contrat OpenAPI publie, commentaires de structure obligatoires\ndans les tests (regle executable). Tickets T09-T10, ITs Testcontainers.\n\nPR deja ouverte\n"
 }
