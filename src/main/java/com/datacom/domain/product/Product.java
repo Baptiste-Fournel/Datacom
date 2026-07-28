@@ -110,9 +110,7 @@ public class Product {
     }
 
     public void submitForValidation(Instant at) {
-        if (status != ProductStatus.DRAFT) {
-            throw new IllegalStateException("Only a draft can be submitted for validation");
-        }
+        requireEditable();
         if (!currentStep.isFinal()) {
             throw new IncompleteProductException(currentStep);
         }
@@ -138,7 +136,7 @@ public class Product {
 
     private void requireEditable() {
         if (!isEditable()) {
-            throw new IllegalStateException("The product is no longer editable");
+            throw new NotEditableException();
         }
     }
 
