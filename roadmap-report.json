@@ -2,5 +2,12 @@
   "result": "ok",
   "detail": "board #4 (22 items) : statuts et chronologie 27-29/07 posees, oral au 30/07",
   "board_url": "https://github.com/users/Baptiste-Fournel/projects/4",
+  "boards": [
+    {
+      "number": 4,
+      "title": "@Baptiste-Fournel's Datacom",
+      "items": 22
+    }
+  ],
   "open_count": 0
 }
