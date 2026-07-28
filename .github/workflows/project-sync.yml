@@ -34,7 +34,7 @@ jobs:
       - name: Peupler le board Projects et regler les statuts
         env:
           GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.PROJECT_PAT }}
-          OWNER: ${{ github.repository_owner }}
+          OWNER: "@me"
           REPO: ${{ github.repository }}
         run: |
           set +e
@@ -44,6 +44,7 @@ jobs:
             RESULT=echec
             DETAIL="secret PROJECTS_PAT absent"
           else
+            echo "gh $(gh --version | head -1)"
             PROJECTS=$(gh project list --owner "$OWNER" --format json --limit 50 2>/tmp/err)
             NUM=$(echo "$PROJECTS" | jq -r '[.projects[] | select(.title | test("datacom"; "i"))] | sort_by(.number) | .[0].number // empty')
             if [ -z "$NUM" ]; then
@@ -52,7 +53,7 @@ jobs:
             fi
             if [ -z "$NUM" ]; then
               RESULT=echec
-              DETAIL="aucun board accessible : $(head -c 300 /tmp/err)"
+              DETAIL="gh project list a echoue : $(tr "\n" " " </tmp/err | head -c 300)"
             else
               PID=$(gh project view "$NUM" --owner "$OWNER" --format json | jq -r '.id')
               FIELDS=$(gh project field-list "$NUM" --owner "$OWNER" --format json)
