@@ -1,5 +1,5 @@
 {
   "branch": "feature/T11-authentification-session",
   "outcome": "success",
-  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"feature/T11-authentification-session\"\nhttps://github.com/Baptiste-Fournel/Datacom/pull/28\n"
+  "log": "acteur: Baptiste-Fournel\ntitle:\ttest(security): authentification de bout en bout, rotation de session et csrf reel\nstate:\tOPEN\nauthor:\tBaptiste-Fournel (Baptiste59)\nlabels:\t\nassignees:\t\nreviewers:\t\nprojects:\t\nmilestone:\t\nnumber:\t28\nurl:\thttps://github.com/Baptiste-Fournel/Datacom/pull/28\nadditions:\t297\ndeletions:\t0\nauto-merge:\tdisabled\n--\n\nPR deja ouverte\n"
 }
