@@ -1,7 +1,7 @@
 {
-  "result": "echec",
-  "detail": "aucun board accessible : unknown owner type",
-  "open_count": 1,
+  "result": "ok",
+  "detail": "board #5 peuple ( items)",
+  "open_count": 0,
   "issues": [
     {
       "labels": [
@@ -516,12 +516,6 @@
           "description": "",
           "id": "LA_kwDOTkyoQc8AAAACte1zVQ",
           "name": "type:infra"
-        },
-        {
-          "color": "FBCA04",
-          "description": "",
-          "id": "LA_kwDOTkyoQc8AAAACtfT9bg",
-          "name": "in progress"
         }
       ],
       "milestone": {
@@ -531,7 +525,7 @@
         "title": "Phase 5 — Durcissement & livraison"
       },
       "number": 21,
-      "state": "OPEN",
+      "state": "CLOSED",
       "title": "T21 — Livraison : release v1.0"
     }
   ]
