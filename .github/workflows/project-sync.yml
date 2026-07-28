@@ -15,7 +15,7 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -27,79 +27,87 @@ jobs:
           gh issue list -R "$REPO" --state all --limit 100 \
             --json number,title,state,milestone,labels \
             --jq 'sort_by(.number)' > /tmp/issues.json
-          jq -r '["#","STATE","MILESTONE","TITLE"], (.[] | [.number, .state, (.milestone.title // "-"), .title]) | @tsv' \
-            /tmp/issues.json | column -t -s $'\t' | sed 's/^/  /'
+          jq -r '.[] | [.number, .state, (.milestone.title // "-"), .title] | @tsv' /tmp/issues.json \
+            | column -t -s $'\t' | sed 's/^/  /'
           echo "open restants : $(jq '[.[]|select(.state=="OPEN")]|length' /tmp/issues.json)"
 
-      - name: Peupler le board Projects et regler les statuts
+      - name: Board Projects - items, statuts et chronologie
         env:
           GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.PROJECT_PAT }}
-          OWNER: "@me"
           REPO: ${{ github.repository }}
         run: |
           set +e
-          RESULT=ok
-          DETAIL=""
+          RESULT=ok; DETAIL=""
           if [ -z "$GH_TOKEN" ]; then
-            RESULT=echec
-            DETAIL="secret PROJECTS_PAT absent"
+            RESULT=echec; DETAIL="secret PROJECTS_PAT absent"
           else
-            echo "gh $(gh --version | head -1)"
-            PROJECTS=$(gh project list --owner "$OWNER" --format json --limit 50 2>/tmp/err)
-            NUM=$(echo "$PROJECTS" | jq -r '[.projects[] | select(.title | test("datacom"; "i"))] | sort_by(.number) | .[0].number // empty')
+            NUM=$(gh project list --owner "@me" --format json --limit 50 2>/tmp/err \
+              | jq -r '[.projects[]|select(.title|test("datacom";"i"))]|sort_by(.number)|.[0].number // empty')
+            [ -z "$NUM" ] && NUM=$(gh project create --owner "@me" --title "DataCom — Roadmap" --format json 2>/tmp/err | jq -r '.number // empty')
             if [ -z "$NUM" ]; then
-              NUM=$(gh project create --owner "$OWNER" --title "DataCom — Roadmap" --format json 2>/tmp/err | jq -r '.number // empty')
-              DETAIL="board cree"
-            fi
-            if [ -z "$NUM" ]; then
-              RESULT=echec
-              DETAIL="gh project list a echoue : $(tr "\n" " " </tmp/err | head -c 300)"
+              RESULT=echec; DETAIL="gh project a echoue : $(tr '\n' ' ' </tmp/err | head -c 300)"
             else
-              PID=$(gh project view "$NUM" --owner "$OWNER" --format json | jq -r '.id')
-              FIELDS=$(gh project field-list "$NUM" --owner "$OWNER" --format json)
-              SFID=$(echo "$FIELDS" | jq -r '.fields[] | select(.name=="Status") | .id')
-              opt() { echo "$FIELDS" | jq -r --arg n "$1" '.fields[] | select(.name=="Status") | .options[] | select(.name|ascii_downcase==($n|ascii_downcase)) | .id' | head -1; }
-              O_TODO=$(opt "Todo"); O_WIP=$(opt "In Progress"); O_DONE=$(opt "Done")
-              BRANCHES=$(git ls-remote --heads origin 'refs/heads/feature/*' | sed 's#.*/feature/##')
-              gh issue list -R "$REPO" --state all --limit 100 --json number,url,state,title > /tmp/il.json
+              PID=$(gh project view "$NUM" --owner "@me" --format json | jq -r '.id')
+              FL=$(gh project field-list "$NUM" --owner "@me" --format json --limit 50)
+              fid() { echo "$FL" | jq -r --arg n "$1" '.fields[]|select(.name==$n)|.id' | head -1; }
+              ensure_date() {
+                local id; id=$(fid "$1")
+                if [ -z "$id" ]; then
+                  gh project field-create "$NUM" --owner "@me" --name "$1" --data-type DATE >/dev/null 2>&1
+                  FL=$(gh project field-list "$NUM" --owner "@me" --format json --limit 50); id=$(fid "$1")
+                fi
+                echo "$id"
+              }
+              SID=$(fid "Status"); STARTID=$(ensure_date "Start"); TARGETID=$(ensure_date "Target")
+              sopt() { echo "$FL" | jq -r --arg n "$1" '.fields[]|select(.name=="Status")|.options[]|select(.name|ascii_downcase==($n|ascii_downcase))|.id' | head -1; }
+              O_TODO=$(sopt "Todo"); O_WIP=$(sopt "In Progress"); O_DONE=$(sopt "Done")
+
+              gh issue list -R "$REPO" --state all --limit 100 --json number,url,state > /tmp/il.json
               for URL in $(jq -r '.[].url' /tmp/il.json); do
-                gh project item-add "$NUM" --owner "$OWNER" --url "$URL" >/dev/null 2>&1
+                gh project item-add "$NUM" --owner "@me" --url "$URL" >/dev/null 2>&1
               done
-              ITEMS=$(gh project item-list "$NUM" --owner "$OWNER" --format json --limit 200)
-              echo "$ITEMS" | jq -c '.items[] | select(.content.type=="Issue") | {item:.id, number:.content.number, title:.content.title}' \
+              EXIST=$(gh project item-list "$NUM" --owner "@me" --format json --limit 200)
+              if ! echo "$EXIST" | jq -e '.items[]|select(.title|test("Pr.sentation orale"))' >/dev/null 2>&1; then
+                gh project item-create "$NUM" --owner "@me" --title "Présentation orale (rédaction)" >/dev/null 2>&1
+              fi
+
+              BRANCHES=$(git ls-remote --heads origin 'refs/heads/feature/*' | sed 's#.*/feature/##')
+              gh project item-list "$NUM" --owner "@me" --format json --limit 200 \
+                | jq -c '.items[] | {item:.id, number:(.content.number // 0), title:.title}' \
                 | while read -r row; do
-                    ITEM=$(echo "$row" | jq -r .item)
-                    NUMBER=$(echo "$row" | jq -r .number)
-                    TITLE=$(echo "$row" | jq -r .title)
-                    STATE=$(jq -r --argjson n "$NUMBER" '.[]|select(.number==$n)|.state' /tmp/il.json)
-                    TCODE=$(echo "$TITLE" | grep -oE 'T[0-9]+' | head -1 | tr -d 'T')
-                    TARGET="$O_TODO"
-                    if [ "$STATE" = "CLOSED" ]; then TARGET="$O_DONE";
-                    elif [ -n "$TCODE" ] && echo "$BRANCHES" | grep -q "T${TCODE}-"; then TARGET="$O_WIP"; fi
-                    [ -n "$TARGET" ] && [ -n "$SFID" ] && gh project item-edit --project-id "$PID" --id "$ITEM" --field-id "$SFID" --single-select-option-id "$TARGET" >/dev/null 2>&1
+                    ITEM=$(jq -r .item <<<"$row")
+                    NUMBER=$(jq -r .number <<<"$row"); TITLE=$(jq -r .title <<<"$row")
+                    if echo "$TITLE" | grep -qi "sentation orale"; then
+                      S="2026-07-30"; T="2026-07-30"; TARGET="$O_TODO"
+                    else
+                      TCODE=$(echo "$TITLE" | grep -oE 'T[0-9]+' | head -1 | tr -d 'T' | sed 's/^0*//')
+                      [ -z "$TCODE" ] && continue
+                      if [ "$TCODE" -le 8 ]; then S="2026-07-27";
+                      elif [ "$TCODE" -le 13 ]; then S="2026-07-28";
+                      else S="2026-07-29"; fi
+                      T="$S"
+                      STATE=$(jq -r --argjson n "$NUMBER" '.[]|select(.number==$n)|.state' /tmp/il.json)
+                      TARGET="$O_TODO"
+                      if [ "$STATE" = "CLOSED" ]; then TARGET="$O_DONE";
+                      elif echo "$BRANCHES" | grep -q "T${TCODE}-"; then TARGET="$O_WIP"; fi
+                    fi
+                    [ -n "$STARTID" ] && gh project item-edit --project-id "$PID" --id "$ITEM" --field-id "$STARTID" --date "$S" >/dev/null 2>&1
+                    [ -n "$TARGETID" ] && gh project item-edit --project-id "$PID" --id "$ITEM" --field-id "$TARGETID" --date "$T" >/dev/null 2>&1
+                    [ -n "$SID" ] && [ -n "$TARGET" ] && gh project item-edit --project-id "$PID" --id "$ITEM" --field-id "$SID" --single-select-option-id "$TARGET" >/dev/null 2>&1
                   done
-              DETAIL="board #$NUM peuple ($(echo "$ITEMS" | jq '.items|length') items)"
+              DETAIL="board #$NUM : statuts et chronologie 27-29/07 poses, oral au 30/07"
             fi
           fi
           jq -n --arg r "$RESULT" --arg d "$DETAIL" --slurpfile issues /tmp/issues.json \
-            '{result:$r, detail:$d, open_count:([$issues[0][]|select(.state=="OPEN")]|length), issues:$issues[0]}' \
-            > /tmp/report.json
+            '{result:$r, detail:$d, open_count:([$issues[0][]|select(.state=="OPEN")]|length)}' > /tmp/report.json
+          echo "$DETAIL"
 
       - name: Publier le rapport sur ci-status
         if: always()
         run: |
-          git config user.name "ci-bot"
-          git config user.email "ci-bot@users.noreply.github.com"
-          if git fetch origin ci-status 2>/dev/null; then
-            git checkout -B ci-status origin/ci-status
-          else
-            git checkout --orphan ci-status
-            git rm -rf --cached . >/dev/null 2>&1 || true
-          fi
+          git config user.name "ci-bot"; git config user.email "ci-bot@users.noreply.github.com"
+          if git fetch origin ci-status 2>/dev/null; then git checkout -B ci-status origin/ci-status; else git checkout --orphan ci-status; git rm -rf --cached . >/dev/null 2>&1 || true; fi
           cp /tmp/report.json roadmap-report.json
           git add roadmap-report.json
           git commit -m "ci: rapport roadmap" >/dev/null || exit 0
-          for i in 1 2 3; do
-            git push origin ci-status && break
-            git fetch origin ci-status && git rebase origin/ci-status
-          done
+          for i in 1 2 3; do git push origin ci-status && break; git fetch origin ci-status && git rebase origin/ci-status; done
