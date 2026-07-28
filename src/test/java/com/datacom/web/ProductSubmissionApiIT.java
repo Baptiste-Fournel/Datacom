@@ -5,9 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.datacom.domain.product.Product;
 import com.datacom.domain.product.ProductRepository;
-import java.time.Instant;
+import com.datacom.testsupport.ProductFixtures;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,8 +25,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Transactional
 @WithMockUser(username = "operator", roles = "OPERATOR")
 class ProductSubmissionApiIT {
-
-    private static final Instant DATE = Instant.parse("2026-07-27T10:00:00Z");
 
     @Container
     @ServiceConnection
@@ -54,7 +51,7 @@ class ProductSubmissionApiIT {
     @Test
     void shouldReturnIncompleteProblem_whenSubmittingBeforeFinalStep() throws Exception {
         // Given
-        Long id = productRepository.save(Product.createDraft(1L, DATE)).id();
+        Long id = productRepository.save(ProductFixtures.draft()).id();
 
         // When
         mockMvc.perform(post("/api/products/" + id + "/submit").with(csrf()))
@@ -87,10 +84,6 @@ class ProductSubmissionApiIT {
     }
 
     private Long persistedDraftAtFinalStep() {
-        Product product = Product.createDraft(1L, DATE);
-        product.advanceToNextStep(DATE);
-        product.advanceToNextStep(DATE);
-        product.advanceToNextStep(DATE);
-        return productRepository.save(product).id();
+        return productRepository.save(ProductFixtures.draftAtFinalStep()).id();
     }
 }
