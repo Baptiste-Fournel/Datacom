@@ -34,6 +34,8 @@ paths:
           description: Session ouverte (cookies SESSION et XSRF-TOKEN posés)
         '401':
           $ref: '#/components/responses/Unauthenticated'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/auth/logout:
     post:
@@ -41,6 +43,7 @@ paths:
       summary: Ferme la session
       responses:
         '204': { description: Session fermée }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/auth/me:
     get:
@@ -54,6 +57,7 @@ paths:
               schema: { $ref: '#/components/schemas/CurrentUser' }
         '401':
           $ref: '#/components/responses/Unauthenticated'
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/products:
     get:
@@ -69,6 +73,7 @@ paths:
                 items: { $ref: '#/components/schemas/ProductSummary' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
     post:
       tags: [products]
       summary: Crée une fiche en brouillon (étape 1)
@@ -80,6 +85,7 @@ paths:
               schema: { $ref: '#/components/schemas/ProductDetail' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/products/{id}:
     get:
@@ -95,6 +101,8 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/products/{id}/identification:
     put:
@@ -112,6 +120,8 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/products/{id}/classification:
     put:
@@ -129,6 +139,8 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/products/{id}/certification:
     put:
@@ -146,6 +158,8 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/products/{id}/advance:
     post:
@@ -158,6 +172,8 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/products/{id}/submit:
     post:
@@ -170,6 +186,8 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/validation/queue:
     get:
@@ -185,6 +203,7 @@ paths:
                 items: { $ref: '#/components/schemas/ProductSummary' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/validation/products/{id}:
     get:
@@ -201,6 +220,8 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
   /api/validation/products/{id}/validate:
     post:
@@ -213,6 +234,8 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '500': { $ref: '#/components/responses/ServerError' }
 
 components:
   securitySchemes:
@@ -239,6 +262,16 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ProductDetail' }
+    BadRequest:
+      description: Corps JSON malformé ou paramètre invalide (code VALIDATION_ERROR)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    ServerError:
+      description: Erreur interne inattendue (corps neutre, sans détail exposé ni code)
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
     Unauthenticated:
       description: Session absente ou expirée
       content:
