@@ -64,4 +64,9 @@ public class ProductController {
     public ProductDetail advance(@PathVariable Long id) {
         return ProductDetail.from(productService.advance(id));
     }
+
+    @PostMapping("/api/products/{id}/submit")
+    public ProductDetail submit(@PathVariable Long id) {
+        return ProductDetail.from(productService.submit(id));
+    }
 }

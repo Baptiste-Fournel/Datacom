@@ -62,4 +62,11 @@ public class ProductService {
         product.advanceToNextStep(Instant.now());
         return productRepository.save(product);
     }
+
+    @Transactional
+    public Product submit(Long id) {
+        Product product = loadProduct(id);
+        product.submitForValidation(Instant.now());
+        return productRepository.save(product);
+    }
 }
