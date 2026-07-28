@@ -1,7 +1,7 @@
 {
   "result": "echec",
-  "detail": "secret PROJECTS_PAT absent",
-  "open_count": 3,
+  "detail": "aucun board accessible : unknown owner type",
+  "open_count": 1,
   "issues": [
     {
       "labels": [
@@ -25,7 +25,7 @@
         "title": "Phase 0 — Socle & outillage"
       },
       "number": 1,
-      "state": "OPEN",
+      "state": "CLOSED",
       "title": "T01 — Socle projet & outillage qualité"
     },
     {
@@ -50,7 +50,7 @@
         "title": "Phase 0 — Socle & outillage"
       },
       "number": 2,
-      "state": "OPEN",
+      "state": "CLOSED",
       "title": "T02 — Walking skeleton : démarrage, Flyway, Docker Compose"
     },
     {
@@ -516,6 +516,12 @@
           "description": "",
           "id": "LA_kwDOTkyoQc8AAAACte1zVQ",
           "name": "type:infra"
+        },
+        {
+          "color": "FBCA04",
+          "description": "",
+          "id": "LA_kwDOTkyoQc8AAAACtfT9bg",
+          "name": "in progress"
         }
       ],
       "milestone": {
