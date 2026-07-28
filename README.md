@@ -58,4 +58,6 @@ Authentification par session (cookie `SESSION` HttpOnly), mots de passe **BCrypt
 
 ## Livraison continue
 
-Chaque merge sur `main` republie l'image `ghcr.io/baptiste-fournel/datacom` (workflow `cd`). La roadmap vit dans les issues GitHub, groupées en milestones par phase.
+Chaque merge sur `main` republie l'image `ghcr.io/baptiste-fournel/datacom` (workflow `cd`) ; chaque tag `v*` crée la release GitHub correspondante (workflow `release`). La roadmap vit dans les issues GitHub, groupées en milestones par phase (six phases, de `v0.1` au domaine jusqu'à `v1.0`).
+
+Le projet a été construit en six phases livrées et taguées incrémentalement : `v0.1.0` domaine métier, `v0.2.0` persistance, `v0.3.0` sécurité, `v0.4.0` API REST complète, `v1.0.0` durcissement et livraison. Chaque phase est un ensemble cohérent, testé et déployable.
