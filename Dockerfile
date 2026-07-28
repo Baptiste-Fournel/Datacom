@@ -6,7 +6,7 @@ COPY config config
 COPY src src
 RUN mvn -B -ntp package -DskipTests
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 RUN addgroup -S datacom && adduser -S datacom -G datacom
 USER datacom
 COPY --from=build /build/target/datacom-*.jar /app/datacom.jar
