@@ -6,8 +6,7 @@ import com.datacom.domain.product.Product;
 import com.datacom.domain.product.ProductRepository;
 import com.datacom.domain.product.ProductStatus;
 import com.datacom.domain.product.WorkflowStep;
-import com.datacom.domain.user.Role;
-import com.datacom.domain.user.User;
+import com.datacom.testsupport.ProductFixtures;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +83,7 @@ class ProductPersistenceIT {
         product.updateCertification("LOT-2026-0389", "CE / IEC 62133", "Dossier fournisseur complet", CREATION_DATE);
         product.advanceToNextStep(CREATION_DATE);
         product.submitForValidation(SUBMISSION_DATE);
-        product.validate(new User(2L, "validator", "Jane", "Doe", Role.VALIDATOR), VALIDATION_DATE);
+        product.validate(ProductFixtures.SEEDED_VALIDATOR, VALIDATION_DATE);
 
         // When
         Long id = repository.save(product).id();

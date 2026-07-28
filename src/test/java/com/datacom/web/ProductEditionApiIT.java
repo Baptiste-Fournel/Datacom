@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.datacom.domain.product.Product;
 import com.datacom.domain.product.ProductRepository;
+import com.datacom.testsupport.ProductFixtures;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @WithMockUser(username = "operator", roles = "OPERATOR")
 class ProductEditionApiIT {
 
-    private static final Instant DATE = Instant.parse("2026-07-27T10:00:00Z");
+    private static final Instant DATE = ProductFixtures.DATE;
 
     @Container
     @ServiceConnection
@@ -183,19 +184,10 @@ class ProductEditionApiIT {
     }
 
     private Long persistedDraftAtFinalStep() {
-        Product product = Product.createDraft(1L, DATE);
-        product.advanceToNextStep(DATE);
-        product.advanceToNextStep(DATE);
-        product.advanceToNextStep(DATE);
-        return productRepository.save(product).id();
+        return productRepository.save(ProductFixtures.draftAtFinalStep()).id();
     }
 
     private Long persistedSubmittedProduct() {
-        Product product = Product.createDraft(1L, DATE);
-        product.advanceToNextStep(DATE);
-        product.advanceToNextStep(DATE);
-        product.advanceToNextStep(DATE);
-        product.submitForValidation(DATE);
-        return productRepository.save(product).id();
+        return productRepository.save(ProductFixtures.submitted()).id();
     }
 }
