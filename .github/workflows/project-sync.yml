@@ -2,11 +2,6 @@ name: project-sync
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, develop]
-    paths: ['.github/workflows/project-sync.yml']
-  issues:
-    types: [opened, reopened, closed, edited]
 
 permissions:
   contents: write
@@ -41,11 +36,13 @@ jobs:
           if [ -z "$GH_TOKEN" ]; then
             RESULT=echec; DETAIL="secret PROJECTS_PAT absent"
           else
-            NUM=$(gh project list --owner "@me" --format json --limit 50 2>/tmp/err \
-              | jq -r '[.projects[]|select(.title|test("datacom";"i"))]|sort_by(.number)|.[0].number // empty')
-            [ -z "$NUM" ] && NUM=$(gh project create --owner "@me" --title "DataCom — Roadmap" --format json 2>/tmp/err | jq -r '.number // empty')
+            NUM="${TARGET_PROJECT:-}"
             if [ -z "$NUM" ]; then
-              RESULT=echec; DETAIL="gh project a echoue : $(tr '\n' ' ' </tmp/err | head -c 300)"
+              NUM=$(gh project list --owner "@me" --format json --limit 50 2>/tmp/err \
+                | jq -r '[.projects[]|select(.title|test("datacom";"i"))]|sort_by(.number)|.[0].number // empty')
+            fi
+            if [ -z "$NUM" ]; then
+              RESULT=echec; DETAIL="aucun board existant trouve (ne pas creer) : $(tr '\n' ' ' </tmp/err | head -c 250)"
             else
               PID=$(gh project view "$NUM" --owner "@me" --format json | jq -r '.id')
               FL=$(gh project field-list "$NUM" --owner "@me" --format json --limit 50)
