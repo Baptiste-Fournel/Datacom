@@ -1,3 +1,3 @@
 {
-  "log": "tag: ops-fin-t12\ndone 12 Livre dans develop (squash, CI verte).\nhttps://github.com/Baptiste-Fournel/Datacom/issues/12\n✓ Closed issue Baptiste-Fournel/Datacom#12 (T12 — Sécurité : espaces de routes par rôle + redirection post-login)\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-fin-t12\n"
+  "log": "tag: ops-note-t13\ncomment 13 Accès croisés (403 operateur<->validateur) : livres et testes en T12 (RoleSpacesIT). Garde IDOR (un validateur ne peut ouvrir par id qu une fiche PENDING_VALIDATION) : rattachee a T18 (endpoint de detail /api/validation/products/{id}) ou elle est implementable et testable de bout en bout. Ticket a cloturer avec T18.\nhttps://github.com/Baptiste-Fournel/Datacom/issues/13#issuecomment-5100122527\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-note-t13\n"
 }
