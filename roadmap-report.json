@@ -1,5 +1,5 @@
 {
-  "result": "ok",
-  "detail": "board #7 : statuts et chronologie 27-29/07 poses, oral au 30/07",
+  "result": "echec",
+  "detail": "aucun board existant trouve (ne pas creer) : error: your authentication token is missing required scopes [read:org read:discussion] To request it, run:  gh auth refresh -s read:org,read:discussion ",
   "open_count": 0
 }
