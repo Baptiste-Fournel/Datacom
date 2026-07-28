@@ -1,10 +1,12 @@
 package com.datacom.web.error;
 
 import com.datacom.application.ProductNotFoundException;
+import com.datacom.application.ProductNotPendingException;
 import com.datacom.application.UnknownAccountException;
 import com.datacom.domain.product.IllegalTransitionException;
 import com.datacom.domain.product.IncompleteProductException;
 import com.datacom.domain.product.NotEditableException;
+import com.datacom.domain.product.ValidationNotAllowedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.core.AuthenticationException;
@@ -42,6 +44,16 @@ public class ApiExceptionHandler {
     @ExceptionHandler(UnknownAccountException.class)
     public ProblemDetail onUnknownAccount(UnknownAccountException exception) {
         return problem(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", exception.getMessage());
+    }
+
+    @ExceptionHandler(ProductNotPendingException.class)
+    public ProblemDetail onProductNotPending(ProductNotPendingException exception) {
+        return problem(HttpStatus.FORBIDDEN, "FORBIDDEN", exception.getMessage());
+    }
+
+    @ExceptionHandler(ValidationNotAllowedException.class)
+    public ProblemDetail onValidationNotAllowed(ValidationNotAllowedException exception) {
+        return problem(HttpStatus.FORBIDDEN, "FORBIDDEN", "Access is denied");
     }
 
     private static ProblemDetail problem(HttpStatus status, String code, String detail) {
