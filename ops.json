@@ -1,3 +1,3 @@
 {
-  "log": "tag: ops-cloture-phase0\ndone 1 Livre : socle Maven/Spring Boot, regles executables et CI (releases v0.1-v0.4). Cloture retroactive.\ndone 2 Livre : walking skeleton (demarrage, Flyway schema corrige, comptes BCrypt, Docker Compose). Cloture retroactive.\nhttps://github.com/Baptiste-Fournel/Datacom/issues/1\n✓ Closed issue Baptiste-Fournel/Datacom#1 (T01 — Socle projet & outillage qualité)\nhttps://github.com/Baptiste-Fournel/Datacom/issues/2\n✓ Closed issue Baptiste-Fournel/Datacom#2 (T02 — Walking skeleton : démarrage, Flyway, Docker Compose)\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-cloture-phase0\n"
+  "log": "tag: ops-debut-t21\nstart 21\n! Issue Baptiste-Fournel/Datacom#21 (T21 — Livraison : release v1.0) is already open\nhttps://github.com/Baptiste-Fournel/Datacom/issues/21\nTo https://github.com/Baptiste-Fournel/Datacom\n - [deleted]         ops-debut-t21\n"
 }
