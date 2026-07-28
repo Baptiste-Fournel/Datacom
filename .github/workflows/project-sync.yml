@@ -59,6 +59,7 @@ jobs:
             else
               PJSON=$(gh project view "$NUM" --owner "@me" --format json)
               PID=$(echo "$PJSON" | jq -r '.id'); PURL=$(echo "$PJSON" | jq -r '.url')
+              BOARDS=$(gh project list --owner "@me" --format json --limit 50 | jq -c '[.projects[]|select(.title|test("datacom";"i"))|{number,title,items:((.items.totalCount)//null)}]|sort_by(.number)')
               FL=$(gh project field-list "$NUM" --owner "@me" --format json --limit 50)
               fid() { echo "$FL" | jq -r --arg n "$1" '.fields[]|select(.name==$n)|.id' | head -1; }
               ensure_date() {
@@ -110,8 +111,8 @@ jobs:
               DETAIL="board #$NUM ($ICOUNT items) : statuts et chronologie 27-29/07 posees, oral au 30/07"
             fi
           fi
-          jq -n --arg r "$RESULT" --arg d "$DETAIL" --arg u "${PURL:-}" --slurpfile issues /tmp/issues.json \
-            '{result:$r, detail:$d, board_url:$u, open_count:([$issues[0][]|select(.state=="OPEN")]|length)}' > /tmp/report.json
+          jq -n --arg r "$RESULT" --arg d "$DETAIL" --arg u "${PURL:-}" --argjson b "${BOARDS:-[]}" --slurpfile issues /tmp/issues.json \
+            '{result:$r, detail:$d, board_url:$u, boards:$b, open_count:([$issues[0][]|select(.state=="OPEN")]|length)}' > /tmp/report.json
           echo "$DETAIL"
 
       - name: Publier le rapport sur ci-status
