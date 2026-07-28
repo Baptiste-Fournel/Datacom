@@ -3,6 +3,7 @@ package com.datacom.web.error;
 import com.datacom.application.ProductNotFoundException;
 import com.datacom.application.UnknownAccountException;
 import com.datacom.domain.product.IllegalTransitionException;
+import com.datacom.domain.product.IncompleteProductException;
 import com.datacom.domain.product.NotEditableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -26,6 +27,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(NotEditableException.class)
     public ProblemDetail onNotEditable(NotEditableException exception) {
         return problem(HttpStatus.CONFLICT, "NOT_EDITABLE", exception.getMessage());
+    }
+
+    @ExceptionHandler(IncompleteProductException.class)
+    public ProblemDetail onIncompleteProduct(IncompleteProductException exception) {
+        return problem(HttpStatus.CONFLICT, "INCOMPLETE_PRODUCT", exception.getMessage());
     }
 
     @ExceptionHandler(IllegalTransitionException.class)
