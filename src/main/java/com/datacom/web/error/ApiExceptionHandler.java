@@ -29,6 +29,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail onAuthenticationFailure(AuthenticationException exception) {
+        LOG.warn("Failed authentication attempt");
         return problem(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", "Invalid credentials");
     }
 
