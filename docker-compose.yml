@@ -26,6 +26,12 @@ services:
       DB_PASSWORD: datacom
     ports:
       - "8080:8080"
+    networks:
+      - datacom-network
 
 volumes:
   pgdata:
+
+networks:
+  datacom-network:
+    external: true
