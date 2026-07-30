@@ -14,10 +14,13 @@ class ProductSubmissionTest {
 
     @Test
     void shouldMoveToPendingValidation_whenSubmittedAtFinalStep() {
+        // Arrange
         Product product = draftAtFinalStep();
 
+        // Act
         product.submitForValidation(SUBMISSION_DATE);
 
+        // Assert
         assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION);
         assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE);
         assertThat(product.isEditable()).isFalse();
@@ -25,8 +28,10 @@ class ProductSubmissionTest {
 
     @Test
     void shouldRejectSubmission_whenDraftIsAtFirstStep() {
+        // Arrange
         Product product = Product.createDraft(42L, CREATION_DATE);
 
+        // Assert
         assertThatExceptionOfType(IncompleteProductException.class)
                 .isThrownBy(() -> product.submitForValidation(SUBMISSION_DATE))
                 .withMessageContaining("final step");
@@ -36,10 +41,12 @@ class ProductSubmissionTest {
 
     @Test
     void shouldRejectSubmission_whenDraftIsAtIntermediateStep() {
+        // Arrange
         Product product = Product.createDraft(42L, CREATION_DATE);
         product.advanceToNextStep(CREATION_DATE);
         product.advanceToNextStep(CREATION_DATE);
 
+        // Assert
         assertThat(product.currentStep()).isEqualTo(WorkflowStep.CERTIFICATION);
         assertThatExceptionOfType(IncompleteProductException.class)
                 .isThrownBy(() -> product.submitForValidation(SUBMISSION_DATE));
@@ -48,10 +55,12 @@ class ProductSubmissionTest {
 
     @Test
     void shouldRejectSubmission_whenAlreadySubmitted() {
+        // Arrange
         Product product = draftAtFinalStep();
         product.submitForValidation(SUBMISSION_DATE);
         Instant retry = Instant.parse("2026-07-27T16:00:00Z");
 
+        // Assert
         assertThatIllegalStateException()
                 .isThrownBy(() -> product.submitForValidation(retry))
                 .withMessageContaining("draft");
@@ -61,10 +70,12 @@ class ProductSubmissionTest {
 
     @Test
     void shouldRejectAnyEdit_whenSubmitted() {
+        // Arrange
         Product product = draftAtFinalStep();
         product.submitForValidation(SUBMISSION_DATE);
         Instant later = Instant.parse("2026-07-27T15:00:00Z");
 
+        // Assert
         assertThatIllegalStateException()
                 .isThrownBy(() -> product.updateIdentification("n", "r", "d", later))
                 .withMessageContaining("editable");

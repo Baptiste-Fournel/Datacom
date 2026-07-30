@@ -10,8 +10,10 @@ class UserTest {
 
     @Test
     void shouldExposeIdentityAndRole_whenCreated() {
+        // Arrange
         User user = new User(7L, "validator", "Jane", "Doe", Role.VALIDATOR);
 
+        // Assert
         assertThat(user.id()).isEqualTo(7L);
         assertThat(user.login()).isEqualTo("validator");
         assertThat(user.firstname()).isEqualTo("Jane");
@@ -21,20 +23,25 @@ class UserTest {
 
     @Test
     void shouldConfirmRole_whenItMatches() {
+        // Arrange
         User operator = new User(1L, "operator", "John", "Doe", Role.OPERATOR);
 
+        // Assert
         assertThat(operator.hasRole(Role.OPERATOR)).isTrue();
     }
 
     @Test
     void shouldDenyRole_whenItDiffers() {
+        // Arrange
         User operator = new User(1L, "operator", "John", "Doe", Role.OPERATOR);
 
+        // Assert
         assertThat(operator.hasRole(Role.VALIDATOR)).isFalse();
     }
 
     @Test
     void shouldRejectCreation_whenIdIsInvalid() {
+        // Assert
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> new User(0L, "operator", "John", "Doe", Role.OPERATOR))
                 .withMessageContaining("identifier");
@@ -42,6 +49,7 @@ class UserTest {
 
     @Test
     void shouldRejectCreation_whenLoginIsBlank() {
+        // Assert
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> new User(1L, "  ", "John", "Doe", Role.OPERATOR))
                 .withMessageContaining("login");
@@ -49,6 +57,7 @@ class UserTest {
 
     @Test
     void shouldRejectCreation_whenLoginIsNull() {
+        // Assert
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> new User(1L, null, "John", "Doe", Role.OPERATOR))
                 .withMessageContaining("login");
@@ -56,6 +65,7 @@ class UserTest {
 
     @Test
     void shouldRejectCreation_whenRoleIsMissing() {
+        // Assert
         assertThatNullPointerException()
                 .isThrownBy(() -> new User(1L, "operator", "John", "Doe", null))
                 .withMessageContaining("role");
