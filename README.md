@@ -16,6 +16,21 @@ docker compose up --build
 
 L'API écoute sur http://localhost:8080 ; le schéma et les comptes de démonstration sont créés par Flyway.
 
+### Avec le front
+
+Le front vit dans un dépôt séparé. Placez les deux dépôts côte à côte, puis lancez chacun de son côté :
+
+```bash
+docker compose up --build        # ici : API + PostgreSQL
+npm install && npm run dev       # dans datacom-front : http://localhost:5173
+```
+
+Le front appelle l'API sur `http://localhost:8080` ; l'API n'autorise en CORS que l'origine déclarée par `FRONT_ORIGINS` (par défaut `http://localhost:5173`). Pour un autre port, surchargez la variable :
+
+```bash
+FRONT_ORIGINS=http://localhost:3000 docker compose up --build
+```
+
 Comptes de **démonstration** (seed Flyway `V2`, **usage développement/démo uniquement** — à remplacer par des comptes réels et des secrets forts pour un déploiement) : `operator` / `operator` (opérateur de saisie) et `validator` / `validator` (responsable conformité).
 
 ## Développer

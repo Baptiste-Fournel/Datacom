@@ -2,6 +2,19 @@
 
 Toutes les évolutions notables de DataCom. Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/). Le projet a été construit en six phases livrées et taguées incrémentalement.
 
+## [1.0.5] — 2026-07-30
+
+### Ajouté
+- Documentation du démarrage conjoint front + API, et surcharge de l'origine autorisée par `FRONT_ORIGINS`.
+- `.dockerignore` : contexte de build limité aux sources nécessaires.
+
+### Modifié
+- Origine CORS par défaut alignée sur le port de développement du front (`http://localhost:5173`).
+- Dependabot restreint aux correctifs (les montées majeures et mineures sont ignorées), groupés et mensuels.
+
+### Supprimé
+- `docs/maquette-ui.html` : la maquette est remplacée par le véritable front SvelteKit.
+
 ## [1.0.4] — 2026-07-29
 
 ### Ajouté
