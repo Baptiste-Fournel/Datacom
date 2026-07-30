@@ -1,3 +1,15 @@
+name: datacom
+
+# Par defaut : base + API (developpement du backend).
+#   docker compose up --build
+#
+# Application complete, interface comprise (profil "full") :
+#   docker compose --profile full up --build
+# Le front est alors construit depuis le depot voisin ../datacom-front.
+# Sans clone voisin, pointer le contexte sur le depot distant :
+#   FRONT_CONTEXT=https://github.com/Adrienfdupont/datacom-front.git#develop \
+#     docker compose --profile full up --build
+
 services:
   db:
     image: postgres:16
@@ -6,7 +18,7 @@ services:
       POSTGRES_USER: datacom
       POSTGRES_PASSWORD: datacom
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U datacom -d datacom"]
       interval: 5s
@@ -24,9 +36,22 @@ services:
       DB_URL: jdbc:postgresql://db:5432/datacom
       DB_USERNAME: datacom
       DB_PASSWORD: datacom
-      FRONT_ORIGINS: ${FRONT_ORIGINS:-http://localhost:5173}
+      FRONT_ORIGINS: ${FRONT_ORIGINS:-http://localhost:5173,http://localhost:3000}
     ports:
-      - "8080:8080"
+      - "${API_PORT:-8080}:8080"
+
+  front:
+    profiles: [full]
+    build:
+      context: ${FRONT_CONTEXT:-../datacom-front}
+      args:
+        PUBLIC_API_BASE_URL: http://localhost:${API_PORT:-8080}
+    depends_on:
+      - app
+    environment:
+      PUBLIC_API_BASE_URL: http://localhost:${API_PORT:-8080}
+    ports:
+      - "${FRONT_PORT:-3000}:3000"
 
 volumes:
   pgdata:

@@ -8,7 +8,35 @@ Backend : **Java 21, Spring Boot 3.5, PostgreSQL 16, Flyway, Maven, Docker**. Fr
 
 ## Démarrer
 
-Prérequis : JDK 21, Docker.
+Prérequis : **Docker uniquement** (le JDK n'est nécessaire que pour développer hors conteneur).
+
+### Application complète, en une commande
+
+Clonez les deux dépôts côte à côte, puis lancez le profil `full` :
+
+```bash
+git clone https://github.com/Baptiste-Fournel/Datacom.git
+git clone https://github.com/Adrienfdupont/datacom-front.git
+cd Datacom
+docker compose --profile full up --build
+```
+
+| | Adresse |
+|---|---|
+| Interface | http://localhost:3000 |
+| API | http://localhost:8080 |
+| PostgreSQL | localhost:5432 (`datacom` / `datacom`) |
+
+Comptes de **démonstration** (seed Flyway `V2`, **usage développement/démo uniquement** — à remplacer par des comptes réels et des secrets forts pour un déploiement) : `operator` / `operator` (opérateur de saisie) et `validator` / `validator` (responsable conformité).
+
+Si vous n'avez cloné que ce dépôt, le front se construit directement depuis le sien :
+
+```bash
+FRONT_CONTEXT=https://github.com/Adrienfdupont/datacom-front.git#develop \
+  docker compose --profile full up --build
+```
+
+### API seule (développement du backend)
 
 ```bash
 docker compose up --build
@@ -16,22 +44,24 @@ docker compose up --build
 
 L'API écoute sur http://localhost:8080 ; le schéma et les comptes de démonstration sont créés par Flyway.
 
-### Avec le front
+Pour développer l'interface avec rechargement à chaud, laissez la base et l'API en conteneur et lancez le front en local (`npm run dev`, port 5173) : il passe alors par son proxy Vite, donc même origine et aucune CORS en jeu.
 
-Le front vit dans un dépôt séparé. Placez les deux dépôts côte à côte, puis lancez chacun de son côté :
+### Ports et origines
 
-```bash
-docker compose up --build        # ici : API + PostgreSQL
-npm install && npm run dev       # dans datacom-front : http://localhost:5173
-```
-
-Le front appelle l'API sur `http://localhost:8080` ; l'API n'autorise en CORS que l'origine déclarée par `FRONT_ORIGINS` (par défaut `http://localhost:5173`). Pour un autre port, surchargez la variable :
+Les ports sont surchargeables, la configuration CORS suit automatiquement :
 
 ```bash
-FRONT_ORIGINS=http://localhost:3000 docker compose up --build
+FRONT_PORT=4000 API_PORT=9090 DB_PORT=5433 docker compose --profile full up --build
 ```
 
-Comptes de **démonstration** (seed Flyway `V2`, **usage développement/démo uniquement** — à remplacer par des comptes réels et des secrets forts pour un déploiement) : `operator` / `operator` (opérateur de saisie) et `validator` / `validator` (responsable conformité).
+L'API n'autorise que les origines déclarées par `FRONT_ORIGINS` (liste séparée par des virgules, par défaut `http://localhost:5173,http://localhost:3000`) et accepte les requêtes authentifiées (`allowCredentials`).
+
+### Arrêter
+
+```bash
+docker compose --profile full down      # arrête et supprime les conteneurs
+docker compose --profile full down -v   # idem, et efface les données
+```
 
 ## Développer
 
