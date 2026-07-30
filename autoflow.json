@@ -1,5 +1,5 @@
 {
-  "branch": "fix/docker-compose-local",
+  "branch": "feature/T22-validation-des-entrees",
   "outcome": "success",
-  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"fix/docker-compose-local\"\nhttps://github.com/Baptiste-Fournel/Datacom/pull/49\n"
+  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"feature/T22-validation-des-entrees\"\nhttps://github.com/Baptiste-Fournel/Datacom/pull/50\n"
 }
