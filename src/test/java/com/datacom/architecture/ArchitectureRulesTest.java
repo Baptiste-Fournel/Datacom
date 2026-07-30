@@ -13,35 +13,35 @@ import com.tngtech.archunit.lang.ArchRule;
 class ArchitectureRulesTest {
 
     @ArchTest
-    static final ArchRule leDomaineNeDependQueDeLuiMemeEtDesLibrairiesDeBase = classes()
+    static final ArchRule domainDependsOnlyOnItselfAndBaseLibraries = classes()
             .that().resideInAPackage("..domain..")
             .should().onlyDependOnClassesThat()
             .resideInAnyPackage("..domain..", "java..", "jakarta.persistence..", "jakarta.validation..")
             .allowEmptyShould(true);
 
     @ArchTest
-    static final ArchRule leDomaineIgnoreSpring = noClasses()
+    static final ArchRule domainIsFrameworkFree = noClasses()
             .that().resideInAPackage("..domain..")
             .should().dependOnClassesThat()
             .resideInAPackage("org.springframework..")
             .allowEmptyShould(true);
 
     @ArchTest
-    static final ArchRule lApplicationIgnoreLesAdaptateurs = noClasses()
+    static final ArchRule applicationDoesNotDependOnAdapters = noClasses()
             .that().resideInAPackage("..application..")
             .should().dependOnClassesThat()
             .resideInAnyPackage("..web..", "..infrastructure..")
             .allowEmptyShould(true);
 
     @ArchTest
-    static final ArchRule leWebIgnoreLInfrastructure = noClasses()
+    static final ArchRule webDoesNotDependOnInfrastructure = noClasses()
             .that().resideInAPackage("..web..")
             .should().dependOnClassesThat()
             .resideInAPackage("..infrastructure..")
             .allowEmptyShould(true);
 
     @ArchTest
-    static final ArchRule lesPaquetsSontSansCycle = slices()
+    static final ArchRule packagesAreFreeOfCycles = slices()
             .matching("com.datacom.(*)..")
             .should().beFreeOfCycles()
             .allowEmptyShould(true);

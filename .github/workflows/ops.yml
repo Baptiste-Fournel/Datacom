@@ -1,0 +1,69 @@
+name: ops
+
+on:
+  push:
+    tags:
+      - 'ops-*'
+
+permissions:
+  issues: write
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Executer les commandes du tag
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set +e
+          git fetch origin "refs/tags/$TAG:refs/tags/$TAG" --force >/dev/null 2>&1
+          MSG=$(git for-each-ref "refs/tags/$TAG" --format='%(contents)')
+          echo "tag: $TAG" > /tmp/ops.log
+          echo "$MSG" >> /tmp/ops.log
+          gh label create "in progress" --color FBCA04 --force >>/tmp/ops.log 2>&1
+          while read -r CMD NUM REST; do
+            case "$CMD" in
+              start)
+                gh issue reopen "$NUM" >>/tmp/ops.log 2>&1
+                gh issue edit "$NUM" --add-label "in progress" >>/tmp/ops.log 2>&1
+                ;;
+              done)
+                gh issue edit "$NUM" --remove-label "in progress" >>/tmp/ops.log 2>&1
+                gh issue close "$NUM" --comment "${REST:-Livre dans develop.}" >>/tmp/ops.log 2>&1
+                ;;
+              comment)
+                gh issue comment "$NUM" --body "$REST" >>/tmp/ops.log 2>&1
+                ;;
+              reopen)
+                gh issue reopen "$NUM" >>/tmp/ops.log 2>&1
+                ;;
+            esac
+          done <<< "$MSG"
+          git push origin ":refs/tags/$TAG" >>/tmp/ops.log 2>&1
+          cat /tmp/ops.log
+      - name: Rapport vers ci-status
+        if: always()
+        shell: bash
+        run: |
+          jq -n --rawfile log /tmp/ops.log '{log:$log}' > /tmp/opsr.json
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          if git fetch origin ci-status 2>/dev/null; then
+            git checkout -B ci-status origin/ci-status
+          else
+            git checkout --orphan ci-status
+            git rm -rf --cached . >/dev/null 2>&1 || true
+          fi
+          cp /tmp/opsr.json ops.json
+          git add ops.json
+          git commit -m "ci: rapport ops" >/dev/null || exit 0
+          for i in 1 2 3; do
+            git push origin ci-status && break
+            git fetch origin ci-status && git rebase origin/ci-status
+          done

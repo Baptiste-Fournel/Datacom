@@ -20,43 +20,43 @@ import org.junit.jupiter.api.Test;
 
 class CommentPolicyTest {
 
-    private static final Set<String> COMMENTAIRES_DE_STRUCTURE =
+    private static final Set<String> STRUCTURING_COMMENTS =
             Set.of("Arrange", "Act", "Assert", "Given", "When", "Then");
 
     private static final ParserConfiguration CONFIGURATION = new ParserConfiguration()
             .setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21);
 
     @Test
-    void leCodeDeProductionNeContientAucunCommentaire() {
-        assertThat(violations(Path.of("src/main/java"), commentaire -> false)).isEmpty();
+    void shouldContainNoComments_whenScanningProductionSources() {
+        assertThat(violations(Path.of("src/main/java"), comment -> false)).isEmpty();
     }
 
     @Test
-    void lesTestsNeContiennentQueDesCommentairesDeStructure() {
-        assertThat(violations(Path.of("src/test/java"), CommentPolicyTest::estUnCommentaireDeStructure)).isEmpty();
+    void shouldContainOnlyStructuringComments_whenScanningTestSources() {
+        assertThat(violations(Path.of("src/test/java"), CommentPolicyTest::isStructuringComment)).isEmpty();
     }
 
-    private static boolean estUnCommentaireDeStructure(Comment commentaire) {
-        return commentaire.isLineComment() && COMMENTAIRES_DE_STRUCTURE.contains(commentaire.getContent().trim());
+    private static boolean isStructuringComment(Comment comment) {
+        return comment.isLineComment() && STRUCTURING_COMMENTS.contains(comment.getContent().trim());
     }
 
-    private static List<String> violations(Path racine, Predicate<Comment> autorise) {
-        try (Stream<Path> fichiers = Files.walk(racine)) {
-            return fichiers
-                    .filter(fichier -> fichier.toString().endsWith(".java"))
-                    .flatMap(fichier -> commentairesDe(fichier).stream()
-                            .filter(commentaire -> !autorise.test(commentaire))
-                            .map(commentaire -> fichier + ":" + ligne(commentaire)))
+    private static List<String> violations(Path root, Predicate<Comment> allowed) {
+        try (Stream<Path> files = Files.walk(root)) {
+            return files
+                    .filter(file -> file.toString().endsWith(".java"))
+                    .flatMap(file -> commentsOf(file).stream()
+                            .filter(comment -> !allowed.test(comment))
+                            .map(comment -> file + ":" + line(comment)))
                     .toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static List<Comment> commentairesDe(Path fichier) {
+    private static List<Comment> commentsOf(Path file) {
         try {
-            ParseResult<CompilationUnit> resultat = new JavaParser(CONFIGURATION).parse(fichier);
-            return resultat.getCommentsCollection()
+            ParseResult<CompilationUnit> result = new JavaParser(CONFIGURATION).parse(file);
+            return result.getCommentsCollection()
                     .map(CommentsCollection::getComments)
                     .map(List::copyOf)
                     .orElse(List.of());
@@ -65,7 +65,7 @@ class CommentPolicyTest {
         }
     }
 
-    private static int ligne(Comment commentaire) {
-        return commentaire.getRange().map(plage -> plage.begin.line).orElse(0);
+    private static int line(Comment comment) {
+        return comment.getRange().map(range -> range.begin.line).orElse(0);
     }
 }
