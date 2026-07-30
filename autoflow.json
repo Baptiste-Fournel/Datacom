@@ -1,5 +1,5 @@
 {
-  "branch": "fix/project-sync-doublons",
+  "branch": "fix/docker-compose-local",
   "outcome": "success",
-  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"fix/project-sync-doublons\"\nhttps://github.com/Baptiste-Fournel/Datacom/pull/47\n"
+  "log": "acteur: Baptiste-Fournel\nno pull requests found for branch \"fix/docker-compose-local\"\nhttps://github.com/Baptiste-Fournel/Datacom/pull/49\n"
 }
