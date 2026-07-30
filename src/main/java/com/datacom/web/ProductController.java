@@ -6,6 +6,7 @@ import com.datacom.web.dto.ClassificationUpdate;
 import com.datacom.web.dto.IdentificationUpdate;
 import com.datacom.web.dto.ProductDetail;
 import com.datacom.web.dto.ProductSummary;
+import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -43,19 +44,19 @@ public class ProductController {
     }
 
     @PutMapping("/api/products/{id}/identification")
-    public ProductDetail saveIdentification(@PathVariable Long id, @RequestBody IdentificationUpdate update) {
+    public ProductDetail saveIdentification(@PathVariable Long id, @Valid @RequestBody IdentificationUpdate update) {
         return ProductDetail.from(
                 productService.editIdentification(id, update.name(), update.reference(), update.description()));
     }
 
     @PutMapping("/api/products/{id}/classification")
-    public ProductDetail saveClassification(@PathVariable Long id, @RequestBody ClassificationUpdate update) {
+    public ProductDetail saveClassification(@PathVariable Long id, @Valid @RequestBody ClassificationUpdate update) {
         return ProductDetail.from(productService.editClassification(id, update.category(), update.subcategory(),
                 update.manufacturer(), update.country()));
     }
 
     @PutMapping("/api/products/{id}/certification")
-    public ProductDetail saveCertification(@PathVariable Long id, @RequestBody CertificationUpdate update) {
+    public ProductDetail saveCertification(@PathVariable Long id, @Valid @RequestBody CertificationUpdate update) {
         return ProductDetail.from(productService.editCertification(id, update.lot(), update.certification(),
                 update.validationComment()));
     }

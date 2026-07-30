@@ -2,6 +2,14 @@
 
 Toutes les évolutions notables de DataCom. Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/). Le projet a été construit en six phases livrées et taguées incrémentalement.
 
+## [1.0.8] — 2026-07-30
+
+### Corrigé
+- Une saisie plus longue que la colonne de destination renvoyait une erreur serveur (`500`) au lieu d'une erreur client. Les champs de fiche sont désormais bornés aux longueurs réelles du schéma et l'échec est rendu en `400 VALIDATION_ERROR`, comme les autres erreurs de requête.
+
+### Ajouté
+- Cinq tests d'intégration sur les bornes de saisie, dont un qui garantit qu'un brouillon partiellement rempli reste accepté.
+
 ## [1.0.7] — 2026-07-30
 
 ### Ajouté
