@@ -1,10 +1,12 @@
 package com.datacom.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.datacom.domain.user.Role;
 import com.datacom.domain.user.User;
 import com.datacom.domain.user.UserRepository;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,9 +32,10 @@ class UserRepositoryIT {
         User operator = repository.findById(1L).orElseThrow();
 
         // Then
-        assertThat(operator.login()).isEqualTo("operator");
-        assertThat(operator.role()).isEqualTo(Role.OPERATOR);
-        assertThat(operator.hasRole(Role.VALIDATOR)).isFalse();
+        assertAll(
+                () -> assertThat(operator.login()).isEqualTo("operator"),
+                () -> assertThat(operator.role()).isEqualTo(Role.OPERATOR),
+                () -> assertThat(operator.hasRole(Role.VALIDATOR)).isFalse());
     }
 
     @Test
@@ -41,7 +44,8 @@ class UserRepositoryIT {
         User validator = repository.findById(2L).orElseThrow();
 
         // Then
-        assertThat(validator.login()).isEqualTo("validator");
-        assertThat(validator.hasRole(Role.VALIDATOR)).isTrue();
+        assertAll(
+                () -> assertThat(validator.login()).isEqualTo("validator"),
+                () -> assertThat(validator.hasRole(Role.VALIDATOR)).isTrue());
     }
 }

@@ -1,6 +1,7 @@
 package com.datacom.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.datacom.domain.product.Product;
 import com.datacom.domain.product.ProductRepository;
@@ -8,6 +9,7 @@ import com.datacom.domain.product.ProductStatus;
 import com.datacom.domain.product.WorkflowStep;
 import com.datacom.testsupport.ProductFixtures;
 import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,14 +45,15 @@ class ProductPersistenceIT {
         Product reloaded = repository.findById(id).orElseThrow();
 
         // Then
-        assertThat(reloaded.status()).isEqualTo(ProductStatus.DRAFT);
-        assertThat(reloaded.currentStep()).isEqualTo(WorkflowStep.IDENTIFICATION);
-        assertThat(reloaded.name()).isEqualTo("Capteur thermique T-200");
-        assertThat(reloaded.reference()).isEqualTo("REF-T200-FR");
-        assertThat(reloaded.description()).isEqualTo("Capteur agroalimentaire");
-        assertThat(reloaded.createdBy()).isEqualTo(1L);
-        assertThat(reloaded.createdAt()).isEqualTo(CREATION_DATE);
-        assertThat(reloaded.updatedAt()).isEqualTo(CREATION_DATE);
+        assertAll(
+                () -> assertThat(reloaded.status()).isEqualTo(ProductStatus.DRAFT),
+                () -> assertThat(reloaded.currentStep()).isEqualTo(WorkflowStep.IDENTIFICATION),
+                () -> assertThat(reloaded.name()).isEqualTo("Capteur thermique T-200"),
+                () -> assertThat(reloaded.reference()).isEqualTo("REF-T200-FR"),
+                () -> assertThat(reloaded.description()).isEqualTo("Capteur agroalimentaire"),
+                () -> assertThat(reloaded.createdBy()).isEqualTo(1L),
+                () -> assertThat(reloaded.createdAt()).isEqualTo(CREATION_DATE),
+                () -> assertThat(reloaded.updatedAt()).isEqualTo(CREATION_DATE));
     }
 
     @Test
@@ -67,9 +70,10 @@ class ProductPersistenceIT {
         Product reloaded = repository.findById(id).orElseThrow();
 
         // Then
-        assertThat(reloaded.status()).isEqualTo(ProductStatus.PENDING_VALIDATION);
-        assertThat(reloaded.currentStep()).isEqualTo(WorkflowStep.SUMMARY);
-        assertThat(reloaded.isEditable()).isFalse();
+        assertAll(
+                () -> assertThat(reloaded.status()).isEqualTo(ProductStatus.PENDING_VALIDATION),
+                () -> assertThat(reloaded.currentStep()).isEqualTo(WorkflowStep.SUMMARY),
+                () -> assertThat(reloaded.isEditable()).isFalse());
     }
 
     @Test
@@ -90,15 +94,16 @@ class ProductPersistenceIT {
         Product reloaded = repository.findById(id).orElseThrow();
 
         // Then
-        assertThat(reloaded.status()).isEqualTo(ProductStatus.VALIDATED);
-        assertThat(reloaded.currentStep()).isEqualTo(WorkflowStep.SUMMARY);
-        assertThat(reloaded.category()).isEqualTo("Electronique");
-        assertThat(reloaded.subcategory()).isEqualTo("Alimentation");
-        assertThat(reloaded.manufacturer()).isEqualTo("PowerCell GmbH");
-        assertThat(reloaded.country()).isEqualTo("Allemagne");
-        assertThat(reloaded.lot()).isEqualTo("LOT-2026-0389");
-        assertThat(reloaded.certification()).isEqualTo("CE / IEC 62133");
-        assertThat(reloaded.validationComment()).isEqualTo("Dossier fournisseur complet");
-        assertThat(reloaded.updatedAt()).isEqualTo(VALIDATION_DATE);
+        assertAll(
+                () -> assertThat(reloaded.status()).isEqualTo(ProductStatus.VALIDATED),
+                () -> assertThat(reloaded.currentStep()).isEqualTo(WorkflowStep.SUMMARY),
+                () -> assertThat(reloaded.category()).isEqualTo("Electronique"),
+                () -> assertThat(reloaded.subcategory()).isEqualTo("Alimentation"),
+                () -> assertThat(reloaded.manufacturer()).isEqualTo("PowerCell GmbH"),
+                () -> assertThat(reloaded.country()).isEqualTo("Allemagne"),
+                () -> assertThat(reloaded.lot()).isEqualTo("LOT-2026-0389"),
+                () -> assertThat(reloaded.certification()).isEqualTo("CE / IEC 62133"),
+                () -> assertThat(reloaded.validationComment()).isEqualTo("Dossier fournisseur complet"),
+                () -> assertThat(reloaded.updatedAt()).isEqualTo(VALIDATION_DATE));
     }
 }

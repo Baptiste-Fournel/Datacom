@@ -1,11 +1,13 @@
 package com.datacom.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.datacom.domain.product.Product;
 import com.datacom.domain.product.ProductRepository;
 import com.datacom.domain.product.ProductStatus;
 import com.datacom.testsupport.ProductFixtures;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,10 +38,11 @@ class ValidatorQueueIT {
         var queue = repository.findByStatus(ProductStatus.PENDING_VALIDATION);
 
         // Then
-        assertThat(queue).extracting(Product::id).contains(pendingId);
-        assertThat(queue).extracting(Product::id).doesNotContain(draftId, validatedId);
-        assertThat(queue).allSatisfy(
-                product -> assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION));
+        assertAll(
+                () -> assertThat(queue).extracting(Product::id).contains(pendingId),
+                () -> assertThat(queue).extracting(Product::id).doesNotContain(draftId, validatedId),
+                () -> assertThat(queue).allSatisfy(
+                        product -> assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION)));
     }
 
 }

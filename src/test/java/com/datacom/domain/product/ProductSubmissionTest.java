@@ -2,8 +2,10 @@ package com.datacom.domain.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 
 class ProductSubmissionTest {
@@ -20,9 +22,10 @@ class ProductSubmissionTest {
         product.submitForValidation(SUBMISSION_DATE);
 
         // Assert
-        assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION);
-        assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE);
-        assertThat(product.isEditable()).isFalse();
+        assertAll(
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION),
+                () -> assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE),
+                () -> assertThat(product.isEditable()).isFalse());
     }
 
     @Test
@@ -31,11 +34,12 @@ class ProductSubmissionTest {
         Product product = Product.createDraft(42L, CREATION_DATE);
 
         // Assert
-        assertThatExceptionOfType(IncompleteProductException.class)
-                .isThrownBy(() -> product.submitForValidation(SUBMISSION_DATE))
-                .withMessageContaining("final step");
-        assertThat(product.status()).isEqualTo(ProductStatus.DRAFT);
-        assertThat(product.updatedAt()).isEqualTo(CREATION_DATE);
+        assertAll(
+                () -> assertThatExceptionOfType(IncompleteProductException.class)
+                        .isThrownBy(() -> product.submitForValidation(SUBMISSION_DATE))
+                        .withMessageContaining("final step"),
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.DRAFT),
+                () -> assertThat(product.updatedAt()).isEqualTo(CREATION_DATE));
     }
 
     @Test
@@ -46,10 +50,11 @@ class ProductSubmissionTest {
         product.advanceToNextStep(CREATION_DATE);
 
         // Assert
-        assertThat(product.currentStep()).isEqualTo(WorkflowStep.CERTIFICATION);
-        assertThatExceptionOfType(IncompleteProductException.class)
-                .isThrownBy(() -> product.submitForValidation(SUBMISSION_DATE));
-        assertThat(product.status()).isEqualTo(ProductStatus.DRAFT);
+        assertAll(
+                () -> assertThat(product.currentStep()).isEqualTo(WorkflowStep.CERTIFICATION),
+                () -> assertThatExceptionOfType(IncompleteProductException.class)
+                        .isThrownBy(() -> product.submitForValidation(SUBMISSION_DATE)),
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.DRAFT));
     }
 
     @Test
@@ -60,11 +65,12 @@ class ProductSubmissionTest {
         Instant retry = Instant.parse("2026-07-27T16:00:00Z");
 
         // Assert
-        assertThatExceptionOfType(NotEditableException.class)
-                .isThrownBy(() -> product.submitForValidation(retry))
-                .withMessageContaining("editable");
-        assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION);
-        assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE);
+        assertAll(
+                () -> assertThatExceptionOfType(NotEditableException.class)
+                        .isThrownBy(() -> product.submitForValidation(retry))
+                        .withMessageContaining("editable"),
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION),
+                () -> assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE));
     }
 
     @Test
@@ -75,15 +81,16 @@ class ProductSubmissionTest {
         Instant later = Instant.parse("2026-07-27T15:00:00Z");
 
         // Assert
-        assertThatExceptionOfType(NotEditableException.class)
-                .isThrownBy(() -> product.updateIdentification("n", "r", "d", later));
-        assertThatExceptionOfType(NotEditableException.class)
-                .isThrownBy(() -> product.updateClassification("c", "s", "m", "p", later));
-        assertThatExceptionOfType(NotEditableException.class)
-                .isThrownBy(() -> product.updateCertification("l", "c", "v", later));
-        assertThatExceptionOfType(NotEditableException.class)
-                .isThrownBy(() -> product.advanceToNextStep(later));
-        assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE);
+        assertAll(
+                () -> assertThatExceptionOfType(NotEditableException.class)
+                        .isThrownBy(() -> product.updateIdentification("n", "r", "d", later)),
+                () -> assertThatExceptionOfType(NotEditableException.class)
+                        .isThrownBy(() -> product.updateClassification("c", "s", "m", "p", later)),
+                () -> assertThatExceptionOfType(NotEditableException.class)
+                        .isThrownBy(() -> product.updateCertification("l", "c", "v", later)),
+                () -> assertThatExceptionOfType(NotEditableException.class)
+                        .isThrownBy(() -> product.advanceToNextStep(later)),
+                () -> assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE));
     }
 
     private static Product draftAtFinalStep() {

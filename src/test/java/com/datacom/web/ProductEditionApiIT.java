@@ -48,11 +48,12 @@ class ProductEditionApiIT {
         // When
         mockMvc.perform(post("/api/products").with(csrf()))
                 // Then
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.status").value("DRAFT"))
-                .andExpect(jsonPath("$.currentStep").value(1))
-                .andExpect(jsonPath("$.createdBy").value(1));
+                .andExpectAll(
+                        status().isCreated(),
+                        jsonPath("$.id").isNumber(),
+                        jsonPath("$.status").value("DRAFT"),
+                        jsonPath("$.currentStep").value(1),
+                        jsonPath("$.createdBy").value(1));
     }
 
     @Test
@@ -63,22 +64,24 @@ class ProductEditionApiIT {
         // When
         mockMvc.perform(get("/api/products/" + id))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Capteur thermique T-200"))
-                .andExpect(jsonPath("$.reference").value("REF-T200-FR"))
-                .andExpect(jsonPath("$.description").value("Capteur agroalimentaire"))
-                .andExpect(jsonPath("$.status").value("DRAFT"))
-                .andExpect(jsonPath("$.createdBy").value(1))
-                .andExpect(jsonPath("$.createdAt").value("2026-07-27T10:00:00Z"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.name").value("Capteur thermique T-200"),
+                        jsonPath("$.reference").value("REF-T200-FR"),
+                        jsonPath("$.description").value("Capteur agroalimentaire"),
+                        jsonPath("$.status").value("DRAFT"),
+                        jsonPath("$.createdBy").value(1),
+                        jsonPath("$.createdAt").value("2026-07-27T10:00:00Z"));
     }
 
     @Test
     void shouldReturnNotFoundProblem_whenProductIsUnknown() throws Exception {
         // Then
         mockMvc.perform(get("/api/products/999999"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.status").value(404),
+                        jsonPath("$.code").value("NOT_FOUND"));
     }
 
     @Test
@@ -91,9 +94,10 @@ class ProductEditionApiIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Sonde SP-40\", \"reference\": \"REF-SP40\", \"description\": null}"))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Sonde SP-40"))
-                .andExpect(jsonPath("$.reference").value("REF-SP40"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.name").value("Sonde SP-40"),
+                        jsonPath("$.reference").value("REF-SP40"));
     }
 
     @Test
@@ -107,9 +111,10 @@ class ProductEditionApiIT {
                         .content("{\"category\": \"Instrumentation\", \"subcategory\": \"Capteurs\","
                                 + " \"manufacturer\": \"ThermoWorks SA\", \"country\": \"France\"}"))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.category").value("Instrumentation"))
-                .andExpect(jsonPath("$.country").value("France"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.category").value("Instrumentation"),
+                        jsonPath("$.country").value("France"));
     }
 
     @Test
@@ -123,9 +128,10 @@ class ProductEditionApiIT {
                         .content("{\"lot\": \"LOT-2026-0417\", \"certification\": \"CE / RoHS\","
                                 + " \"validationComment\": \"Dossier complet\"}"))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.lot").value("LOT-2026-0417"))
-                .andExpect(jsonPath("$.validationComment").value("Dossier complet"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.lot").value("LOT-2026-0417"),
+                        jsonPath("$.validationComment").value("Dossier complet"));
     }
 
     @Test
@@ -136,8 +142,9 @@ class ProductEditionApiIT {
         // When
         mockMvc.perform(post("/api/products/" + id + "/advance").with(csrf()))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.currentStep").value(2));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.currentStep").value(2));
     }
 
     @Test
@@ -150,9 +157,10 @@ class ProductEditionApiIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"n\", \"reference\": \"r\", \"description\": \"d\"}"))
                 // Then
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.code").value("NOT_EDITABLE"));
+                .andExpectAll(
+                        status().isConflict(),
+                        jsonPath("$.status").value(409),
+                        jsonPath("$.code").value("NOT_EDITABLE"));
     }
 
     @Test
@@ -161,8 +169,9 @@ class ProductEditionApiIT {
         // When
         mockMvc.perform(post("/api/products").with(csrf()))
                 // Then
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.code").value("UNAUTHENTICATED"));
     }
 
     @Test
@@ -173,8 +182,9 @@ class ProductEditionApiIT {
         // When
         mockMvc.perform(post("/api/products/" + id + "/advance").with(csrf()))
                 // Then
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("ILLEGAL_TRANSITION"));
+                .andExpectAll(
+                        status().isConflict(),
+                        jsonPath("$.code").value("ILLEGAL_TRANSITION"));
     }
 
     @Test
@@ -188,9 +198,10 @@ class ProductEditionApiIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"" + tooLong + "\", \"reference\": \"r\", \"description\": \"d\"}"))
                 // Then
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.status").value(400),
+                        jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -204,8 +215,9 @@ class ProductEditionApiIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"n\", \"reference\": \"" + tooLong + "\", \"description\": \"d\"}"))
                 // Then
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -220,8 +232,9 @@ class ProductEditionApiIT {
                         .content("{\"category\": \"" + tooLong + "\", \"subcategory\": \"s\","
                                 + " \"manufacturer\": \"m\", \"country\": \"c\"}"))
                 // Then
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -236,8 +249,9 @@ class ProductEditionApiIT {
                         .content("{\"lot\": \"" + tooLong + "\", \"certification\": \"c\","
                                 + " \"validationComment\": \"v\"}"))
                 // Then
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test

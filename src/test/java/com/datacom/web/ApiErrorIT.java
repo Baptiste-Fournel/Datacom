@@ -43,12 +43,13 @@ class ApiErrorIT {
     void shouldReturnUnauthenticatedProblem_whenAnonymous() throws Exception {
         // Then
         mockMvc.perform(get("/api/auth/me"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(jsonPath("$.type").value("about:blank"))
-                .andExpect(jsonPath("$.title").value("Unauthorized"))
-                .andExpect(jsonPath("$.status").value(401))
-                .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON),
+                        jsonPath("$.type").value("about:blank"),
+                        jsonPath("$.title").value("Unauthorized"),
+                        jsonPath("$.status").value(401),
+                        jsonPath("$.code").value("UNAUTHENTICATED"));
     }
 
     @Test
@@ -58,12 +59,13 @@ class ApiErrorIT {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"login\": \"operator\", \"password\": \"wrong\"}"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(jsonPath("$.type").value("about:blank"))
-                .andExpect(jsonPath("$.title").value("Unauthorized"))
-                .andExpect(jsonPath("$.status").value(401))
-                .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON),
+                        jsonPath("$.type").value("about:blank"),
+                        jsonPath("$.title").value("Unauthorized"),
+                        jsonPath("$.status").value(401),
+                        jsonPath("$.code").value("UNAUTHENTICATED"));
     }
 
     @Test
@@ -71,10 +73,11 @@ class ApiErrorIT {
     void shouldReturnForbiddenProblem_whenEnteringForeignSpace() throws Exception {
         // Then
         mockMvc.perform(get("/api/validation/queue"))
-                .andExpect(status().isForbidden())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(jsonPath("$.status").value(403))
-                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+                .andExpectAll(
+                        status().isForbidden(),
+                        content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON),
+                        jsonPath("$.status").value(403),
+                        jsonPath("$.code").value("FORBIDDEN"));
     }
 
     @Test
@@ -83,9 +86,10 @@ class ApiErrorIT {
         mockMvc.perform(options("/api/auth/login")
                         .header("Origin", "http://localhost:5173")
                         .header("Access-Control-Request-Method", "POST"))
-                .andExpect(status().isOk())
-                .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5173"))
-                .andExpect(header().string("Access-Control-Allow-Credentials", "true"));
+                .andExpectAll(
+                        status().isOk(),
+                        header().string("Access-Control-Allow-Origin", "http://localhost:5173"),
+                        header().string("Access-Control-Allow-Credentials", "true"));
     }
 
     @Test
@@ -104,9 +108,10 @@ class ApiErrorIT {
         mockMvc.perform(put("/api/products/1/identification").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{broken"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.status").value(400),
+                        jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -114,8 +119,9 @@ class ApiErrorIT {
     void shouldReturnValidationProblem_whenPathIdIsNotNumeric() throws Exception {
         // Then
         mockMvc.perform(get("/api/products/not-a-number"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+                .andExpectAll(
+                        status().isBadRequest(),
+                        jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -124,12 +130,13 @@ class ApiErrorIT {
         // When
         mockMvc.perform(get("/api/boom"))
                 // Then
-                .andExpect(status().isInternalServerError())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-                .andExpect(jsonPath("$.detail").value("An unexpected error occurred"))
-                .andExpect(jsonPath("$.code").doesNotExist())
-                .andExpect(content().string(Matchers.not(Matchers.containsString("secret internal detail"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("IllegalArgumentException"))));
+                .andExpectAll(
+                        status().isInternalServerError(),
+                        content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON),
+                        jsonPath("$.detail").value("An unexpected error occurred"),
+                        jsonPath("$.code").doesNotExist(),
+                        content().string(Matchers.not(Matchers.containsString("secret internal detail"))),
+                        content().string(Matchers.not(Matchers.containsString("IllegalArgumentException"))));
     }
 
     @RestController

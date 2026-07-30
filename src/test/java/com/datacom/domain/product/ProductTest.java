@@ -3,8 +3,10 @@ package com.datacom.domain.product;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 
 class ProductTest {
@@ -18,8 +20,9 @@ class ProductTest {
         Product product = Product.createDraft(CREATOR_ID, CREATION_DATE);
 
         // Assert
-        assertThat(product.status()).isEqualTo(ProductStatus.DRAFT);
-        assertThat(product.currentStep()).isEqualTo(WorkflowStep.IDENTIFICATION);
+        assertAll(
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.DRAFT),
+                () -> assertThat(product.currentStep()).isEqualTo(WorkflowStep.IDENTIFICATION));
     }
 
     @Test
@@ -28,20 +31,22 @@ class ProductTest {
         Product product = Product.createDraft(CREATOR_ID, CREATION_DATE);
 
         // Assert
-        assertThat(product.createdBy()).isEqualTo(CREATOR_ID);
-        assertThat(product.createdAt()).isEqualTo(CREATION_DATE);
-        assertThat(product.updatedAt()).isEqualTo(CREATION_DATE);
+        assertAll(
+                () -> assertThat(product.createdBy()).isEqualTo(CREATOR_ID),
+                () -> assertThat(product.createdAt()).isEqualTo(CREATION_DATE),
+                () -> assertThat(product.updatedAt()).isEqualTo(CREATION_DATE));
     }
 
     @Test
     void shouldRejectCreation_whenCreatorIdIsInvalid() {
         // Assert
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> Product.createDraft(0L, CREATION_DATE))
-                .withMessageContaining("creator");
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> Product.createDraft(-1L, CREATION_DATE))
-                .withMessageContaining("creator");
+        assertAll(
+                () -> assertThatIllegalArgumentException()
+                        .isThrownBy(() -> Product.createDraft(0L, CREATION_DATE))
+                        .withMessageContaining("creator"),
+                () -> assertThatIllegalArgumentException()
+                        .isThrownBy(() -> Product.createDraft(-1L, CREATION_DATE))
+                        .withMessageContaining("creator"));
     }
 
     @Test
