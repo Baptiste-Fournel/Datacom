@@ -1,4 +1,9 @@
 package com.datacom.web.dto;
 
-public record CertificationUpdate(String lot, String certification, String validationComment) {
+import jakarta.validation.constraints.Size;
+
+public record CertificationUpdate(
+        @Size(max = 100) String lot,
+        @Size(max = 255) String certification,
+        String validationComment) {
 }

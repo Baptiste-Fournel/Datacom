@@ -177,6 +177,82 @@ class ProductEditionApiIT {
                 .andExpect(jsonPath("$.code").value("ILLEGAL_TRANSITION"));
     }
 
+    @Test
+    void shouldReturnValidationProblem_whenNameExceedsStorableLength() throws Exception {
+        // Given
+        Long id = persistedDraft();
+        String tooLong = "A".repeat(256);
+
+        // When
+        mockMvc.perform(put("/api/products/" + id + "/identification").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"" + tooLong + "\", \"reference\": \"r\", \"description\": \"d\"}"))
+                // Then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void shouldReturnValidationProblem_whenReferenceExceedsStorableLength() throws Exception {
+        // Given
+        Long id = persistedDraft();
+        String tooLong = "R".repeat(101);
+
+        // When
+        mockMvc.perform(put("/api/products/" + id + "/identification").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"n\", \"reference\": \"" + tooLong + "\", \"description\": \"d\"}"))
+                // Then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void shouldReturnValidationProblem_whenClassificationFieldExceedsStorableLength() throws Exception {
+        // Given
+        Long id = persistedDraft();
+        String tooLong = "C".repeat(101);
+
+        // When
+        mockMvc.perform(put("/api/products/" + id + "/classification").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"category\": \"" + tooLong + "\", \"subcategory\": \"s\","
+                                + " \"manufacturer\": \"m\", \"country\": \"c\"}"))
+                // Then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void shouldReturnValidationProblem_whenCertificationFieldExceedsStorableLength() throws Exception {
+        // Given
+        Long id = persistedDraft();
+        String tooLong = "L".repeat(101);
+
+        // When
+        mockMvc.perform(put("/api/products/" + id + "/certification").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"lot\": \"" + tooLong + "\", \"certification\": \"c\","
+                                + " \"validationComment\": \"v\"}"))
+                // Then
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void shouldAcceptEmptyFields_whenDraftIsStillBeingFilled() throws Exception {
+        // Given
+        Long id = persistedDraft();
+
+        // When
+        mockMvc.perform(put("/api/products/" + id + "/identification").with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"\", \"reference\": \"\", \"description\": \"\"}"))
+                // Then
+                .andExpect(status().isOk());
+    }
+
     private Long persistedDraft() {
         Product product = Product.createDraft(1L, DATE);
         product.updateIdentification("Capteur thermique T-200", "REF-T200-FR", "Capteur agroalimentaire", DATE);
