@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -e
+./mvnw -q -ntp checkstyle:check
+./mvnw -q -ntp test -Dtest='CommentPolicyTest,ArchitectureRulesTest' -DfailIfNoTests=false

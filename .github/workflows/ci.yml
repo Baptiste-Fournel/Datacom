@@ -1,0 +1,72 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+      - 'fix/**'
+      - 'test/**'
+      - 'chore/**'
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Verification complete (style, commentaires, architecture, tests, couverture)
+        shell: bash
+        run: |
+          set -o pipefail
+          ./mvnw -B -ntp verify 2>&1 | tee /tmp/mvn.log
+      - name: Rapport vers la branche ci-status
+        if: always()
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          CONCLUSION: ${{ job.status }}
+        run: |
+          tail -n 200 /tmp/mvn.log > /tmp/tail.txt 2>/dev/null || echo "pas de log" > /tmp/tail.txt
+          jq -n --arg sha "$HEAD_SHA" --arg branch "$HEAD_REF" --arg event "$EVENT_NAME" \
+                --arg conclusion "$CONCLUSION" --arg run "$GITHUB_RUN_ID" \
+                --rawfile tail /tmp/tail.txt \
+                '{sha:$sha, branch:$branch, event:$event, conclusion:$conclusion, run:$run, tail:$tail}' \
+                > /tmp/report.json
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          if git fetch origin ci-status 2>/dev/null; then
+            git checkout -B ci-status origin/ci-status
+          else
+            git checkout --orphan ci-status
+            git rm -rf --cached . >/dev/null 2>&1 || true
+          fi
+          mkdir -p status
+          cp /tmp/report.json "status/${HEAD_SHA}.json"
+          git add status
+          git commit -m "ci: rapport ${HEAD_SHA:0:7} ($CONCLUSION)" >/dev/null
+          for i in 1 2 3; do
+            git push origin ci-status && break
+            git fetch origin ci-status && git rebase origin/ci-status
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rapport-jacoco
+          path: target/site/jacoco
+          if-no-files-found: ignore

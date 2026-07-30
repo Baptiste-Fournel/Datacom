@@ -1,0 +1,26 @@
+name: autoflow
+
+on:
+  push:
+    branches:
+      - 'feat/**'
+      - 'fix/**'
+      - 'test/**'
+      - 'chore/**'
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ouvrir la PR si absente
+        env:
+          GH_TOKEN: ${{ secrets.ACTIONS_PAT || github.token }}
+        run: |
+          gh pr view "$GITHUB_REF_NAME" >/dev/null 2>&1 && exit 0
+          gh pr create --base main --head "$GITHUB_REF_NAME" --fill-first

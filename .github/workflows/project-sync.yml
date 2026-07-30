@@ -1,0 +1,60 @@
+name: project-sync
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/project-sync.yml']
+  issues:
+    types: [opened, reopened]
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Synchroniser le board Projects
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.ACTIONS_PAT || github.token }}
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+        run: |
+          set +e
+          RESULT=ok
+          DETAIL=""
+          NUM=$(gh project list --owner "$OWNER" --format json --limit 50 2>/tmp/err \
+            | jq -r '.projects[] | select(.title=="Datacom — Refonte") | .number' | head -1)
+          if [ -z "$NUM" ]; then
+            NUM=$(gh project create --owner "$OWNER" --title "Datacom — Refonte" --format json 2>/tmp/err \
+              | jq -r '.number')
+          fi
+          if [ -z "$NUM" ] || [ "$NUM" = "null" ]; then
+            RESULT=echec
+            DETAIL=$(head -c 400 /tmp/err)
+          else
+            for URL in $(gh issue list -R "$OWNER/$REPO" --state all --limit 100 --json url -q '.[].url'); do
+              gh project item-add "$NUM" --owner "$OWNER" --url "$URL" >/dev/null 2>&1
+            done
+          fi
+          jq -n --arg r "$RESULT" --arg n "${NUM:-}" --arg d "$DETAIL" \
+            '{result:$r, project:$n, detail:$d}' > /tmp/project.json
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          if git fetch origin ci-status 2>/dev/null; then
+            git checkout -B ci-status origin/ci-status
+          else
+            git checkout --orphan ci-status
+            git rm -rf --cached . >/dev/null 2>&1 || true
+          fi
+          cp /tmp/project.json project-sync.json
+          git add project-sync.json
+          git commit -m "ci: rapport project-sync" >/dev/null || exit 0
+          for i in 1 2 3; do
+            git push origin ci-status && break
+            git fetch origin ci-status && git rebase origin/ci-status
+          done
