@@ -18,17 +18,25 @@ L'API écoute sur http://localhost:8080 ; le schéma et les comptes de démonstr
 
 ### Avec le front
 
-Le front vit dans un dépôt séparé. Placez les deux dépôts côte à côte, puis lancez chacun de son côté :
+Le front vit dans un dépôt séparé, à placer à côté de celui-ci. Deux modes de fonctionnement, selon la façon de lancer le front.
+
+**Développement (recommandé).** Le front sert l'API via son proxy Vite : le navigateur reste sur une seule origine, donc les cookies de session et le jeton CSRF passent sans aucune configuration CORS.
 
 ```bash
-docker compose up --build        # ici : API + PostgreSQL
+docker compose up --build        # ici : API + PostgreSQL sur :8080
 npm install && npm run dev       # dans datacom-front : http://localhost:5173
 ```
 
-Le front appelle l'API sur `http://localhost:8080` ; l'API n'autorise en CORS que l'origine déclarée par `FRONT_ORIGINS` (par défaut `http://localhost:5173`). Pour un autre port, surchargez la variable :
+**Conteneur de production.** Le front est alors servi par Node sur le port `3000` et appelle l'API directement : il faut lui donner l'URL publique de l'API, et l'API doit autoriser son origine.
 
 ```bash
-FRONT_ORIGINS=http://localhost:3000 docker compose up --build
+PUBLIC_API_BASE_URL=http://localhost:8080 docker compose up --build   # côté front
+```
+
+L'API n'autorise que les origines déclarées par `FRONT_ORIGINS` (liste séparée par des virgules, par défaut `http://localhost:5173,http://localhost:3000`) et accepte les requêtes authentifiées (`allowCredentials`). Pour une autre origine :
+
+```bash
+FRONT_ORIGINS=https://datacom.example.com docker compose up --build
 ```
 
 Comptes de **démonstration** (seed Flyway `V2`, **usage développement/démo uniquement** — à remplacer par des comptes réels et des secrets forts pour un déploiement) : `operator` / `operator` (opérateur de saisie) et `validator` / `validator` (responsable conformité).

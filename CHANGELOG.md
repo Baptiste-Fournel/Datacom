@@ -2,6 +2,15 @@
 
 Toutes les évolutions notables de DataCom. Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/). Le projet a été construit en six phases livrées et taguées incrémentalement.
 
+## [1.0.6] — 2026-07-30
+
+### Ajouté
+- Dossier technique complet et illustré (`docs/dossier-technique.md`) : architecture, modèle de données, patterns, flux des cas d'usage, sécurité, tests et collaboration, avec schémas Mermaid rendus par GitHub.
+
+### Modifié
+- CORS : les deux origines du front sont autorisées par défaut (`5173` en développement via le proxy Vite, `3000` pour le conteneur de production).
+- README : documentation des deux modes de démarrage du front.
+
 ## [1.0.5] — 2026-07-30
 
 ### Ajouté
