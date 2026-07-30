@@ -2,7 +2,6 @@ package com.datacom.domain.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
@@ -61,9 +60,9 @@ class ProductSubmissionTest {
         Instant retry = Instant.parse("2026-07-27T16:00:00Z");
 
         // Assert
-        assertThatIllegalStateException()
+        assertThatExceptionOfType(NotEditableException.class)
                 .isThrownBy(() -> product.submitForValidation(retry))
-                .withMessageContaining("draft");
+                .withMessageContaining("editable");
         assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION);
         assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE);
     }
@@ -76,18 +75,14 @@ class ProductSubmissionTest {
         Instant later = Instant.parse("2026-07-27T15:00:00Z");
 
         // Assert
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.updateIdentification("n", "r", "d", later))
-                .withMessageContaining("editable");
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.updateClassification("c", "s", "m", "p", later))
-                .withMessageContaining("editable");
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.updateCertification("l", "c", "v", later))
-                .withMessageContaining("editable");
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.advanceToNextStep(later))
-                .withMessageContaining("editable");
+        assertThatExceptionOfType(NotEditableException.class)
+                .isThrownBy(() -> product.updateIdentification("n", "r", "d", later));
+        assertThatExceptionOfType(NotEditableException.class)
+                .isThrownBy(() -> product.updateClassification("c", "s", "m", "p", later));
+        assertThatExceptionOfType(NotEditableException.class)
+                .isThrownBy(() -> product.updateCertification("l", "c", "v", later));
+        assertThatExceptionOfType(NotEditableException.class)
+                .isThrownBy(() -> product.advanceToNextStep(later));
         assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE);
     }
 

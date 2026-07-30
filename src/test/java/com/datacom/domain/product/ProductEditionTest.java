@@ -1,7 +1,7 @@
 package com.datacom.domain.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
@@ -81,7 +81,7 @@ class ProductEditionTest {
 
         // Assert
         Instant failedAttempt = Instant.parse("2026-07-27T12:00:00Z");
-        assertThatIllegalStateException()
+        assertThatExceptionOfType(IllegalTransitionException.class)
                 .isThrownBy(() -> product.advanceToNextStep(failedAttempt))
                 .withMessageContaining("final step");
         assertThat(product.currentStep()).isEqualTo(WorkflowStep.SUMMARY);
