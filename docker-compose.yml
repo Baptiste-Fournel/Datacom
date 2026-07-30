@@ -24,14 +24,9 @@ services:
       DB_URL: jdbc:postgresql://db:5432/datacom
       DB_USERNAME: datacom
       DB_PASSWORD: datacom
+      FRONT_ORIGINS: ${FRONT_ORIGINS:-http://localhost:3000}
     ports:
       - "8080:8080"
-    networks:
-      - datacom-network
 
 volumes:
   pgdata:
-
-networks:
-  datacom-network:
-    external: true
