@@ -3,12 +3,10 @@ name: project-sync
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - develop
-      - 'feature/**'
+    branches: [main, develop]
+    paths: ['.github/workflows/project-sync.yml']
   issues:
-    types: [opened, reopened, closed]
+    types: [opened, reopened, closed, edited]
 
 permissions:
   contents: write
@@ -17,54 +15,78 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Synchroniser le board (items et statuts)
-        shell: bash
+
+      - name: Rapport d etat des tickets
         env:
-          GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.PROJECT_PAT || secrets.ACTIONS_PAT || github.token }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh issue list -R "$REPO" --state all --limit 100 \
+            --json number,title,state,milestone,labels \
+            --jq 'sort_by(.number)' > /tmp/issues.json
+          jq -r '["#","STATE","MILESTONE","TITLE"], (.[] | [.number, .state, (.milestone.title // "-"), .title]) | @tsv' \
+            /tmp/issues.json | column -t -s $'\t' | sed 's/^/  /'
+          echo "open restants : $(jq '[.[]|select(.state=="OPEN")]|length' /tmp/issues.json)"
+
+      - name: Peupler le board Projects et regler les statuts
+        env:
+          GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.PROJECT_PAT }}
           OWNER: ${{ github.repository_owner }}
-          REPO: ${{ github.event.repository.name }}
+          REPO: ${{ github.repository }}
         run: |
           set +e
           RESULT=ok
           DETAIL=""
-          PROJECTS=$(gh project list --owner "$OWNER" --format json --limit 50 2>/tmp/err)
-          NUM=$(echo "$PROJECTS" | jq -r '[.projects[] | select(.title | test("datacom"; "i"))][0].number // empty')
-          PID=$(echo "$PROJECTS" | jq -r '[.projects[] | select(.title | test("datacom"; "i"))][0].id // empty')
-          if [ -z "$NUM" ]; then
+          if [ -z "$GH_TOKEN" ]; then
             RESULT=echec
-            DETAIL="aucun project contenant datacom accessible avec ce token : $(head -c 250 /tmp/err)"
+            DETAIL="secret PROJECTS_PAT absent"
           else
-            for URL in $(gh issue list -R "$OWNER/$REPO" --state all --limit 100 --json url -q '.[].url'); do
-              gh project item-add "$NUM" --owner "$OWNER" --url "$URL" >/dev/null 2>&1
-            done
-            FIELDS=$(gh project field-list "$NUM" --owner "$OWNER" --format json 2>/dev/null)
-            FID=$(echo "$FIELDS" | jq -r '.fields[] | select(.name == "Status") | .id')
-            OPT_TODO=$(echo "$FIELDS" | jq -r '.fields[] | select(.name == "Status") | .options[] | select(.name == "Todo") | .id')
-            OPT_WIP=$(echo "$FIELDS" | jq -r '.fields[] | select(.name == "Status") | .options[] | select(.name == "In Progress") | .id')
-            OPT_DONE=$(echo "$FIELDS" | jq -r '.fields[] | select(.name == "Status") | .options[] | select(.name == "Done") | .id')
-            BRANCHES=$(git ls-remote --heads origin 'refs/heads/feature/*' | awk -F/ '{print $4}')
-            gh project item-list "$NUM" --owner "$OWNER" --format json --limit 200 2>/dev/null \
-              | jq -r '.items[] | select(.content.type == "Issue") | [.id, .content.number, .status // "", (.content.title | capture("T(?<t>[0-9]+)").t // "")] | @tsv' \
-              | while IFS=$'\t' read -r ITEM NUMBER STATUS TCODE; do
-                  STATE=$(gh issue view "$NUMBER" -R "$OWNER/$REPO" --json state -q .state 2>/dev/null)
-                  TARGET="$OPT_TODO"
-                  TARGET_NAME="Todo"
-                  if [ "$STATE" = "CLOSED" ]; then
-                    TARGET="$OPT_DONE"; TARGET_NAME="Done"
-                  elif [ -n "$TCODE" ] && echo "$BRANCHES" | grep -q "T${TCODE}-"; then
-                    TARGET="$OPT_WIP"; TARGET_NAME="In Progress"
-                  fi
-                  if [ -n "$TARGET" ] && [ "$STATUS" != "$TARGET_NAME" ]; then
-                    gh project item-edit --project-id "$PID" --id "$ITEM" \
-                      --field-id "$FID" --single-select-option-id "$TARGET" >/dev/null 2>&1
-                  fi
-                done
+            PROJECTS=$(gh project list --owner "$OWNER" --format json --limit 50 2>/tmp/err)
+            NUM=$(echo "$PROJECTS" | jq -r '[.projects[] | select(.title | test("datacom"; "i"))] | sort_by(.number) | .[0].number // empty')
+            if [ -z "$NUM" ]; then
+              NUM=$(gh project create --owner "$OWNER" --title "DataCom — Roadmap" --format json 2>/tmp/err | jq -r '.number // empty')
+              DETAIL="board cree"
+            fi
+            if [ -z "$NUM" ]; then
+              RESULT=echec
+              DETAIL="aucun board accessible : $(head -c 300 /tmp/err)"
+            else
+              PID=$(gh project view "$NUM" --owner "$OWNER" --format json | jq -r '.id')
+              FIELDS=$(gh project field-list "$NUM" --owner "$OWNER" --format json)
+              SFID=$(echo "$FIELDS" | jq -r '.fields[] | select(.name=="Status") | .id')
+              opt() { echo "$FIELDS" | jq -r --arg n "$1" '.fields[] | select(.name=="Status") | .options[] | select(.name|ascii_downcase==($n|ascii_downcase)) | .id' | head -1; }
+              O_TODO=$(opt "Todo"); O_WIP=$(opt "In Progress"); O_DONE=$(opt "Done")
+              BRANCHES=$(git ls-remote --heads origin 'refs/heads/feature/*' | sed 's#.*/feature/##')
+              gh issue list -R "$REPO" --state all --limit 100 --json number,url,state,title > /tmp/il.json
+              for URL in $(jq -r '.[].url' /tmp/il.json); do
+                gh project item-add "$NUM" --owner "$OWNER" --url "$URL" >/dev/null 2>&1
+              done
+              ITEMS=$(gh project item-list "$NUM" --owner "$OWNER" --format json --limit 200)
+              echo "$ITEMS" | jq -c '.items[] | select(.content.type=="Issue") | {item:.id, number:.content.number, title:.content.title}' \
+                | while read -r row; do
+                    ITEM=$(echo "$row" | jq -r .item)
+                    NUMBER=$(echo "$row" | jq -r .number)
+                    TITLE=$(echo "$row" | jq -r .title)
+                    STATE=$(jq -r --argjson n "$NUMBER" '.[]|select(.number==$n)|.state' /tmp/il.json)
+                    TCODE=$(echo "$TITLE" | grep -oE 'T[0-9]+' | head -1 | tr -d 'T')
+                    TARGET="$O_TODO"
+                    if [ "$STATE" = "CLOSED" ]; then TARGET="$O_DONE";
+                    elif [ -n "$TCODE" ] && echo "$BRANCHES" | grep -q "T${TCODE}-"; then TARGET="$O_WIP"; fi
+                    [ -n "$TARGET" ] && [ -n "$SFID" ] && gh project item-edit --project-id "$PID" --id "$ITEM" --field-id "$SFID" --single-select-option-id "$TARGET" >/dev/null 2>&1
+                  done
+              DETAIL="board #$NUM peuple ($(echo "$ITEMS" | jq '.items|length') items)"
+            fi
           fi
-          jq -n --arg r "$RESULT" --arg n "${NUM:-}" --arg d "$DETAIL" \
-            '{result:$r, project:$n, detail:$d}' > /tmp/project.json
+          jq -n --arg r "$RESULT" --arg d "$DETAIL" --slurpfile issues /tmp/issues.json \
+            '{result:$r, detail:$d, open_count:([$issues[0][]|select(.state=="OPEN")]|length), issues:$issues[0]}' \
+            > /tmp/report.json
+
+      - name: Publier le rapport sur ci-status
+        if: always()
+        run: |
           git config user.name "ci-bot"
           git config user.email "ci-bot@users.noreply.github.com"
           if git fetch origin ci-status 2>/dev/null; then
@@ -73,9 +95,9 @@ jobs:
             git checkout --orphan ci-status
             git rm -rf --cached . >/dev/null 2>&1 || true
           fi
-          cp /tmp/project.json project-sync.json
-          git add project-sync.json
-          git commit -m "ci: rapport project-sync" >/dev/null || exit 0
+          cp /tmp/report.json roadmap-report.json
+          git add roadmap-report.json
+          git commit -m "ci: rapport roadmap" >/dev/null || exit 0
           for i in 1 2 3; do
             git push origin ci-status && break
             git fetch origin ci-status && git rebase origin/ci-status
