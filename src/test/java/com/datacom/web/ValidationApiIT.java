@@ -48,11 +48,12 @@ class ValidationApiIT {
         // When
         mockMvc.perform(get("/api/validation/queue"))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].id", Matchers.hasItem(pendingId.intValue())))
-                .andExpect(jsonPath("$[*].id", Matchers.not(Matchers.hasItem(draftId.intValue()))))
-                .andExpect(jsonPath("$[*].id", Matchers.not(Matchers.hasItem(validatedId.intValue()))))
-                .andExpect(jsonPath("$[*].status", Matchers.everyItem(Matchers.is("PENDING_VALIDATION"))));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$[*].id", Matchers.hasItem(pendingId.intValue())),
+                        jsonPath("$[*].id", Matchers.not(Matchers.hasItem(draftId.intValue()))),
+                        jsonPath("$[*].id", Matchers.not(Matchers.hasItem(validatedId.intValue()))),
+                        jsonPath("$[*].status", Matchers.everyItem(Matchers.is("PENDING_VALIDATION"))));
     }
 
     @Test
@@ -63,10 +64,11 @@ class ValidationApiIT {
         // When
         mockMvc.perform(get("/api/validation/products/" + id))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(id))
-                .andExpect(jsonPath("$.status").value("PENDING_VALIDATION"))
-                .andExpect(jsonPath("$.currentStep").value(4));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.id").value(id),
+                        jsonPath("$.status").value("PENDING_VALIDATION"),
+                        jsonPath("$.currentStep").value(4));
     }
 
     @Test
@@ -77,17 +79,19 @@ class ValidationApiIT {
         // When
         mockMvc.perform(get("/api/validation/products/" + draftId))
                 // Then
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.status").value(403))
-                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+                .andExpectAll(
+                        status().isForbidden(),
+                        jsonPath("$.status").value(403),
+                        jsonPath("$.code").value("FORBIDDEN"));
     }
 
     @Test
     void shouldReturnNotFoundProblem_whenProductIsUnknown() throws Exception {
         // Then
         mockMvc.perform(get("/api/validation/products/999999"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.code").value("NOT_FOUND"));
     }
 
     @Test
@@ -98,8 +102,9 @@ class ValidationApiIT {
         // When
         mockMvc.perform(post("/api/validation/products/" + id + "/validate").with(csrf()))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("VALIDATED"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("VALIDATED"));
     }
 
     @Test
@@ -111,8 +116,9 @@ class ValidationApiIT {
         // When
         mockMvc.perform(post("/api/validation/products/" + id + "/validate").with(csrf()))
                 // Then
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+                .andExpectAll(
+                        status().isForbidden(),
+                        jsonPath("$.code").value("FORBIDDEN"));
     }
 
     @Test
@@ -124,8 +130,9 @@ class ValidationApiIT {
         // When
         mockMvc.perform(post("/api/validation/products/" + id + "/validate").with(csrf()))
                 // Then
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"));
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        jsonPath("$.code").value("UNAUTHENTICATED"));
     }
 
     @Test
@@ -136,7 +143,8 @@ class ValidationApiIT {
         // When
         mockMvc.perform(post("/api/validation/products/" + draftId + "/validate").with(csrf()))
                 // Then
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+                .andExpectAll(
+                        status().isForbidden(),
+                        jsonPath("$.code").value("FORBIDDEN"));
     }
 }

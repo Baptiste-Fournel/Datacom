@@ -116,8 +116,9 @@ class AuthenticationIT {
     void shouldRejectAnonymousAccessAndIssueCsrfCookie_whenSessionIsAbsent() throws Exception {
         // Then
         mockMvc.perform(get("/api/probe"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(cookie().exists("XSRF-TOKEN"));
+                .andExpectAll(
+                        status().isUnauthorized(),
+                        cookie().exists("XSRF-TOKEN"));
     }
 
     @Test

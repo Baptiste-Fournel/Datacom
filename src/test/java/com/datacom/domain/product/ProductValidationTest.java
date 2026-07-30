@@ -4,10 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.datacom.domain.user.Role;
 import com.datacom.domain.user.User;
 import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 
 class ProductValidationTest {
@@ -27,8 +29,9 @@ class ProductValidationTest {
         product.validate(VALIDATOR, VALIDATION_DATE);
 
         // Assert
-        assertThat(product.status()).isEqualTo(ProductStatus.VALIDATED);
-        assertThat(product.updatedAt()).isEqualTo(VALIDATION_DATE);
+        assertAll(
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.VALIDATED),
+                () -> assertThat(product.updatedAt()).isEqualTo(VALIDATION_DATE));
     }
 
     @Test
@@ -37,11 +40,12 @@ class ProductValidationTest {
         Product product = pendingProduct();
 
         // Assert
-        assertThatExceptionOfType(ValidationNotAllowedException.class)
-                .isThrownBy(() -> product.validate(OPERATOR, VALIDATION_DATE))
-                .withMessageContaining("VALIDATOR");
-        assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION);
-        assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE);
+        assertAll(
+                () -> assertThatExceptionOfType(ValidationNotAllowedException.class)
+                        .isThrownBy(() -> product.validate(OPERATOR, VALIDATION_DATE))
+                        .withMessageContaining("VALIDATOR"),
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.PENDING_VALIDATION),
+                () -> assertThat(product.updatedAt()).isEqualTo(SUBMISSION_DATE));
     }
 
     @Test
@@ -50,10 +54,11 @@ class ProductValidationTest {
         Product product = Product.createDraft(1L, CREATION_DATE);
 
         // Assert
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.validate(VALIDATOR, VALIDATION_DATE))
-                .withMessageContaining("pending validation");
-        assertThat(product.status()).isEqualTo(ProductStatus.DRAFT);
+        assertAll(
+                () -> assertThatIllegalStateException()
+                        .isThrownBy(() -> product.validate(VALIDATOR, VALIDATION_DATE))
+                        .withMessageContaining("pending validation"),
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.DRAFT));
     }
 
     @Test
@@ -64,11 +69,12 @@ class ProductValidationTest {
         Instant retry = Instant.parse("2026-07-28T10:00:00Z");
 
         // Assert
-        assertThatIllegalStateException()
-                .isThrownBy(() -> product.validate(VALIDATOR, retry))
-                .withMessageContaining("pending validation");
-        assertThat(product.status()).isEqualTo(ProductStatus.VALIDATED);
-        assertThat(product.updatedAt()).isEqualTo(VALIDATION_DATE);
+        assertAll(
+                () -> assertThatIllegalStateException()
+                        .isThrownBy(() -> product.validate(VALIDATOR, retry))
+                        .withMessageContaining("pending validation"),
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.VALIDATED),
+                () -> assertThat(product.updatedAt()).isEqualTo(VALIDATION_DATE));
     }
 
     @Test
@@ -100,15 +106,16 @@ class ProductValidationTest {
         Instant later = Instant.parse("2026-07-28T11:00:00Z");
 
         // Assert
-        assertThat(product.isEditable()).isFalse();
-        assertThatExceptionOfType(NotEditableException.class)
-                .isThrownBy(() -> product.updateIdentification("n", "r", "d", later));
-        assertThatExceptionOfType(NotEditableException.class)
-                .isThrownBy(() -> product.advanceToNextStep(later));
-        assertThatExceptionOfType(NotEditableException.class)
-                .isThrownBy(() -> product.submitForValidation(later));
-        assertThat(product.status()).isEqualTo(ProductStatus.VALIDATED);
-        assertThat(product.updatedAt()).isEqualTo(VALIDATION_DATE);
+        assertAll(
+                () -> assertThat(product.isEditable()).isFalse(),
+                () -> assertThatExceptionOfType(NotEditableException.class)
+                        .isThrownBy(() -> product.updateIdentification("n", "r", "d", later)),
+                () -> assertThatExceptionOfType(NotEditableException.class)
+                        .isThrownBy(() -> product.advanceToNextStep(later)),
+                () -> assertThatExceptionOfType(NotEditableException.class)
+                        .isThrownBy(() -> product.submitForValidation(later)),
+                () -> assertThat(product.status()).isEqualTo(ProductStatus.VALIDATED),
+                () -> assertThat(product.updatedAt()).isEqualTo(VALIDATION_DATE));
     }
 
     private static Product pendingProduct() {

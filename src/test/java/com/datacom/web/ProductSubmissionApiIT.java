@@ -44,8 +44,9 @@ class ProductSubmissionApiIT {
         // When
         mockMvc.perform(post("/api/products/" + id + "/submit").with(csrf()))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("PENDING_VALIDATION"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("PENDING_VALIDATION"));
     }
 
     @Test
@@ -56,9 +57,10 @@ class ProductSubmissionApiIT {
         // When
         mockMvc.perform(post("/api/products/" + id + "/submit").with(csrf()))
                 // Then
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.code").value("INCOMPLETE_PRODUCT"));
+                .andExpectAll(
+                        status().isConflict(),
+                        jsonPath("$.status").value(409),
+                        jsonPath("$.code").value("INCOMPLETE_PRODUCT"));
     }
 
     @Test
@@ -71,16 +73,18 @@ class ProductSubmissionApiIT {
         // When
         mockMvc.perform(post("/api/products/" + id + "/submit").with(csrf()))
                 // Then
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("NOT_EDITABLE"));
+                .andExpectAll(
+                        status().isConflict(),
+                        jsonPath("$.code").value("NOT_EDITABLE"));
     }
 
     @Test
     void shouldReturnNotFoundProblem_whenSubmittingUnknownProduct() throws Exception {
         // Then
         mockMvc.perform(post("/api/products/999999/submit").with(csrf()))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+                .andExpectAll(
+                        status().isNotFound(),
+                        jsonPath("$.code").value("NOT_FOUND"));
     }
 
     private Long persistedDraftAtFinalStep() {

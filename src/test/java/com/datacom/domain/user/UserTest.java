@@ -3,6 +3,7 @@ package com.datacom.domain.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,11 +15,12 @@ class UserTest {
         User user = new User(7L, "validator", "Jane", "Doe", Role.VALIDATOR);
 
         // Assert
-        assertThat(user.id()).isEqualTo(7L);
-        assertThat(user.login()).isEqualTo("validator");
-        assertThat(user.firstname()).isEqualTo("Jane");
-        assertThat(user.lastname()).isEqualTo("Doe");
-        assertThat(user.role()).isEqualTo(Role.VALIDATOR);
+        assertAll(
+                () -> assertThat(user.id()).isEqualTo(7L),
+                () -> assertThat(user.login()).isEqualTo("validator"),
+                () -> assertThat(user.firstname()).isEqualTo("Jane"),
+                () -> assertThat(user.lastname()).isEqualTo("Doe"),
+                () -> assertThat(user.role()).isEqualTo(Role.VALIDATOR));
     }
 
     @Test

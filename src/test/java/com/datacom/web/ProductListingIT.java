@@ -52,13 +52,14 @@ class ProductListingIT {
         // When
         mockMvc.perform(get("/api/products"))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].reference").value("REF-NEW"))
-                .andExpect(jsonPath("$[0].name").value("Newer sensor"))
-                .andExpect(jsonPath("$[0].status").value("DRAFT"))
-                .andExpect(jsonPath("$[0].currentStep").value(1))
-                .andExpect(jsonPath("$[1].reference").value("REF-OLD"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$", hasSize(2)),
+                        jsonPath("$[0].reference").value("REF-NEW"),
+                        jsonPath("$[0].name").value("Newer sensor"),
+                        jsonPath("$[0].status").value("DRAFT"),
+                        jsonPath("$[0].currentStep").value(1),
+                        jsonPath("$[1].reference").value("REF-OLD"));
     }
 
     @Test
@@ -67,7 +68,8 @@ class ProductListingIT {
         // When
         mockMvc.perform(get("/api/products"))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(0)));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$", hasSize(0)));
     }
 }

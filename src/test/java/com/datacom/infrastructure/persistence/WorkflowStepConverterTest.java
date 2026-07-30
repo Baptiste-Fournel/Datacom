@@ -1,8 +1,10 @@
 package com.datacom.infrastructure.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.datacom.domain.product.WorkflowStep;
+
 import org.junit.jupiter.api.Test;
 
 class WorkflowStepConverterTest {
@@ -24,7 +26,8 @@ class WorkflowStepConverterTest {
     @Test
     void shouldReturnNull_whenSourceIsNull() {
         // Assert
-        assertThat(converter.convertToDatabaseColumn(null)).isNull();
-        assertThat(converter.convertToEntityAttribute(null)).isNull();
+        assertAll(
+                () -> assertThat(converter.convertToDatabaseColumn(null)).isNull(),
+                () -> assertThat(converter.convertToEntityAttribute(null)).isNull());
     }
 }

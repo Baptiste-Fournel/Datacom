@@ -33,12 +33,13 @@ class RoleSpacesIT {
         // When
         mockMvc.perform(get("/api/auth/me"))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.login").value("operator"))
-                .andExpect(jsonPath("$.firstname").value("John"))
-                .andExpect(jsonPath("$.lastname").value("Doe"))
-                .andExpect(jsonPath("$.role").value("OPERATOR"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.id").value(1),
+                        jsonPath("$.login").value("operator"),
+                        jsonPath("$.firstname").value("John"),
+                        jsonPath("$.lastname").value("Doe"),
+                        jsonPath("$.role").value("OPERATOR"));
     }
 
     @Test
@@ -47,9 +48,10 @@ class RoleSpacesIT {
         // When
         mockMvc.perform(get("/api/auth/me"))
                 // Then
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.login").value("validator"))
-                .andExpect(jsonPath("$.role").value("VALIDATOR"));
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.login").value("validator"),
+                        jsonPath("$.role").value("VALIDATOR"));
     }
 
     @Test
