@@ -48,20 +48,14 @@ Solliciter Baptiste **uniquement** si : ambiguïté métier réelle, décision i
 | Lancer l'app + base | `docker compose up --build` |
 | Activer les hooks git | `./scripts/install-hooks.sh` |
 
-## Environnements
+## Automatisation (workflows GitHub Actions)
 
-- **CI GitHub Actions** : juge de paix, exécute tout (`verify`, ITs Testcontainers incluses).
-- **Machine locale (Mac de Baptiste)** : tout fonctionne, activer les hooks git à la première installation.
-- **Sandbox cloud de l'agent** : Maven Central et l'API REST GitHub y sont inaccessibles — seul le protocole git passe. Ne pas builder localement, ne pas appeler l'API : piloter par git uniquement (voir ci-dessous).
-
-## Pilotage GitHub par git uniquement (depuis le sandbox)
-
-- **Pousser une branche** `feature/Txx-...` → le workflow `autoflow` ouvre la PR vers `develop` automatiquement.
-- **Lire le résultat de la CI** : `git fetch origin ci-status` puis lire `status/<sha>.json` sur cette branche (conclusion + dernières lignes du log Maven en cas d'échec). Le sha à chercher est celui du sommet de la branche poussée.
-- **Merger** : uniquement quand le rapport est `success` → `git merge --squash feature/Txx` sur `develop`, un commit explicite, puis push. Fermer le ticket par tag ops (`done <n>`) et supprimer la branche distante. Nota : le squash ne fait pas passer la PR en « merged » — la fermer via le tag ops (`comment` + fermeture auto par GitHub quand la branche est supprimée).
-- **Cycle de vie des tickets** : pousser un tag annoté `ops-<slug>` dont le message contient une commande par ligne — `start <n>` (label « in progress »), `done <n> [commentaire]` (retire le label et ferme l'issue), `comment <n> <texte>`, `reopen <n>`. Le workflow `ops` exécute avec les droits du repo puis supprime le tag ; rapport dans `ops.json` sur `ci-status`. Rituel : `start` à l'ouverture de la branche, `done` au merge dans `develop`.
-- **Releases** : merge `develop → main` + tag `v0.<phase>` quand une phase est complète (jugement au fil de l'eau) ; la CD publie l'image.
-- **Numéros des tickets** : `roadmap/issues.json` sur la branche `ci-status` (publié par le workflow `bootstrap-roadmap`).
+- `ci` — vérification complète (`verify` + ITs Testcontainers), bloquante sur chaque PR et branche.
+- `cd` — publie l'image `ghcr.io/baptiste-fournel/datacom` à chaque push sur `main`.
+- `release` — crée la release GitHub sur chaque tag `v*`.
+- `autoflow` — ouvre automatiquement la PR vers `develop` au push d'une branche `feature/**`.
+- `project-sync` — tient à jour le board GitHub Projects (statuts et dates) et publie un rapport d'état.
+- `dependabot` — met à jour les dépendances Maven, Actions et Docker chaque semaine.
 
 ## Définition of done d'un ticket
 

@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Signalement de vulnérabilité
+    url: https://github.com/Baptiste-Fournel/Datacom/security/advisories/new
+    about: Pour une faille de sécurité, utilisez le signalement privé (voir SECURITY.md), pas une issue publique.
