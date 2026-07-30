@@ -30,5 +30,5 @@ Le backend expose une **API REST** (sessions Spring Security, pas de rendu HTML)
 ## Conséquences
 
 - Les tickets de la phase 4 (T14-T18) sont **réinterprétés en endpoints REST** (mêmes périmètres fonctionnels, plus de templates) ; les tickets sécurité T11-T13 passent au login JSON + CSRF cookie. Les trois niveaux de défense de l'ADR-001 (URL → service → domaine) restent inchangés.
-- La maquette `docs/maquette-ui.html` reste la **référence visuelle** ; ses tokens sont transposés dans la config Tailwind du front.
+- La **référence visuelle** est portée par le front SvelteKit lui-même ; ses tokens vivent dans sa configuration Tailwind.
 - Le repo front est créé et tenu par le développeur front ; le back n'héberge que le contrat OpenAPI.

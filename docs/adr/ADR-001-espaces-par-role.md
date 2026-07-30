@@ -322,4 +322,4 @@ Le statut reste un `VARCHAR` côté base, mappé par `@Enumerated(EnumType.STRIN
 
 Un troisième badge « En attente de validation » (distinct du brouillon ambre et du validé vert). Côté opérateur, l'étape 4 troque son bouton de validation contre **« Soumettre à validation »**, et la fiche devient lecture seule une fois soumise. Côté validateur, l'espace est une **file d'attente** : uniquement les fiches en attente, ouvertes en lecture seule avec l'action de validation. La navigation et la redirection après connexion s'adaptent au rôle.
 
-Voir la maquette `datacom-maquette-ui.html` pour le rendu des deux espaces.
+Le rendu des deux espaces est porté par le front SvelteKit, sur le contrat `docs/openapi.yaml`.
