@@ -2,6 +2,15 @@ name: project-sync
 
 on:
   workflow_dispatch:
+    inputs:
+      target_project:
+        description: "Numero du board Projects a cibler (vide = board Datacom le plus ancien)"
+        required: false
+        default: ""
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/project-sync.yml
 
 permissions:
   contents: write
@@ -30,6 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PROJECTS_PAT || secrets.PROJECT_PAT }}
           REPO: ${{ github.repository }}
+          TARGET_PROJECT: ${{ github.event.inputs.target_project }}
         run: |
           set +e
           RESULT=ok; DETAIL=""
@@ -38,8 +48,11 @@ jobs:
           else
             NUM="${TARGET_PROJECT:-}"
             if [ -z "$NUM" ]; then
-              NUM=$(gh project list --owner "@me" --format json --limit 50 2>/tmp/err \
-                | jq -r '[.projects[]|select(.title|test("datacom";"i"))]|sort_by(.number)|.[0].number // empty')
+              NUM=$(gh project list --owner "@me" --format json --limit 50 2>/tmp/err | jq -r '
+                [.projects[]] as $all
+                | ([$all[]|select((.title|ascii_downcase)=="datacom")]|sort_by(.number)|.[0].number)
+                  // ([$all[]|select(.title|test("datacom";"i"))]|sort_by(.number)|.[0].number)
+                  // empty')
             fi
             if [ -z "$NUM" ]; then
               RESULT=echec; DETAIL="aucun board existant trouve (ne pas creer) : $(tr '\n' ' ' </tmp/err | head -c 250)"
